@@ -82,7 +82,7 @@ fn eval_candidate(c: &[i64], ingredients: &[Ingredient]) -> i64 {
 fn highest_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>, i64) {
     let num_ingredients = ingredients.len();
     let initial_guess = teaspoons / (num_ingredients as i64);
-    let mut guesses = vec![initial_guess; num_ingredients as usize];
+    let mut guesses = vec![initial_guess; num_ingredients];
 
     guesses[0] = teaspoons - (((num_ingredients as i64) - 1) * initial_guess);
 

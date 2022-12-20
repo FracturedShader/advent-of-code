@@ -42,7 +42,7 @@ impl World {
     fn count(&self) -> usize {
         self.current()
             .iter()
-            .flat_map(|r| r.iter().map(|&b| if b { 1 } else { 0 }))
+            .flat_map(|r| r.iter().map(|&b| usize::from(b)))
             .sum()
     }
 
@@ -94,7 +94,7 @@ impl World {
                         src.get((i + ri) as usize)
                             .and_then(|sr| sr.get((j + rj) as usize))
                     })
-                    .map(|&b| if b { 1 } else { 0 })
+                    .map(|&b| i32::from(b))
                     .sum::<i32>();
 
                 *c = matches!((prev, living_neighbors), (true, 2) | (true, 3) | (false, 3));
