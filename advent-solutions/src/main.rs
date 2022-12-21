@@ -2,7 +2,35 @@ mod year_2015;
 mod year_2022;
 
 fn main() {
-    let parts = std::env::args()
+    let mut args = std::env::args();
+
+    if args.len() == 1 {
+        println!("This application expects one argument in the form YYYY-DD-PP (year-day-part) and any needed inputs to exist in data/YYYY-DD.txt");
+        println!("The following solutions are implemented:");
+
+        let opts: Vec<(i32, &dyn Fn() -> i32)> = vec![
+            (2015, &year_2015::days_solved),
+            (2022, &year_2022::days_solved),
+        ];
+
+        for (year, solved) in opts {
+            let avail = solved();
+
+            print!(" - {}: The first ", year);
+
+            if avail == 1 {
+                print!("day is");
+            } else {
+                print!("{} days are", avail);
+            }
+
+            println!(" complete.");
+        }
+
+        return;
+    }
+
+    let parts = args
         .nth(1)
         .unwrap()
         .split('-')
