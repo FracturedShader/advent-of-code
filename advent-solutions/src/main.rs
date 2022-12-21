@@ -1,4 +1,5 @@
 mod year_2015;
+mod year_2022;
 
 fn main() {
     let parts = std::env::args()
@@ -14,6 +15,7 @@ fn main() {
 
     match year {
         2015 => year_2015::run_solution(day, part),
+        2022 => year_2022::run_solution(day, part),
         _ => eprintln!("No solutions found for the year {}", year),
     }
 }
