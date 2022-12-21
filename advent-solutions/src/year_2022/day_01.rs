@@ -20,7 +20,7 @@ where
 }
 
 /// Elves carry a number of items, each with a known caloric value
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Elf {
     items: Vec<u32>,
 }
@@ -69,7 +69,10 @@ impl Elf {
     }
 }
 
-pub fn part_01(reader: Option<impl BufRead>) {
+/// Parses the problem input and returns the Elf objects parsed as well as their cummulative
+/// carried calories.
+/// Panics if reader is `None` as a convenience for otherwise identical `expect`
+fn parse_input(reader: Option<impl BufRead>) -> (Vec<Elf>, Vec<u32>) {
     let elves = Elf::parse_all(
         reader
             .expect("This problem requires data input")
@@ -77,21 +80,22 @@ pub fn part_01(reader: Option<impl BufRead>) {
             .filter_map(Result::ok),
     );
 
+    let sum_calories = elves.iter().map(Elf::calories_carried).collect();
+
+    (elves, sum_calories)
+}
+
+pub fn part_01(reader: Option<impl BufRead>) {
+    let (_, sum_calories) = parse_input(reader);
+
     println!(
         "Most calories carried by an Elf: {}",
-        elves.iter().map(Elf::calories_carried).max().unwrap()
+        sum_calories.iter().max().unwrap()
     );
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
-    let elves = Elf::parse_all(
-        reader
-            .expect("This problem requires data input")
-            .lines()
-            .filter_map(Result::ok),
-    );
-
-    let mut sum_calories = elves.iter().map(Elf::calories_carried).collect::<Vec<_>>();
+    let (_, mut sum_calories) = parse_input(reader);
 
     sum_calories.sort_by(|a, b| b.partial_cmp(a).unwrap());
 
@@ -103,6 +107,8 @@ pub fn part_02(reader: Option<impl BufRead>) {
 
 #[cfg(test)]
 mod test {
+    use std::io::BufReader;
+
     use super::*;
 
     /// Verify that parsing all elves and getting their total carried calories works as intended
@@ -123,11 +129,8 @@ mod test {
 
 10000"#;
 
-        let elves = Elf::parse_all(input.lines());
+        let (_, sum_calories) = parse_input(Some(BufReader::new(input.as_bytes())));
 
-        assert_eq!(
-            vec![6000, 4000, 11000, 24000, 10000],
-            elves.iter().map(Elf::calories_carried).collect::<Vec<_>>()
-        );
+        assert_eq!(vec![6000, 4000, 11000, 24000, 10000], sum_calories);
     }
 }
