@@ -3,7 +3,8 @@
 //! and part solution for any implemented days using only two numbers: year and highest solved day.
 //! The macro generates `use` and `mod` declarations as well as a
 //! `pub fn run_solution(day: i32, part: i32)` that tries to load any input from a `data` folder
-//! and passes it to the matching `day_##::part_##(reader: Option<impl BufRead>)` if it exists.
+//! and passes it to the matching `day_##::part_##(reader: Option<impl BufRead>)`, if it exists,
+//! and a `pub fn days_solved() -> i32` to check how many days have solutions.
 //!
 //!
 //! # Example
@@ -36,25 +37,27 @@ impl Parse for YearInput {
 
 /// A top-level convenience macro for avoiding year module boilerplate. This macro creates a
 /// `run_solution(day: i32, part: i32)` function that takes care of matching the given day and part
-/// to `day_##::part_##(reader: Option<impl BufRead>)` if such a solution exists. The macro expects
-/// to be called with two integar literals such as `generate_year!(2015 19);` with the literals
+/// to `day_##::part_##(reader: Option<impl BufRead>)` if such a solution exists. It also creates a
+/// `days_solved() -> i32` function to see how many days have solutions. The macro expects to be
+/// called with two integar literals such as `generate_year!(2015 19);` with the literals
 /// representing the modules year and highest solved day (inclusive) respectively.
 #[proc_macro]
 pub fn generate_year(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as YearInput);
-    let year: usize = input
-        .year
-        .base10_parse()
-        .expect("Year should be a usize literal");
+    let YearInput { year, max_day } = parse_macro_input!(input as YearInput);
 
-    let range = 1..=input
-        .max_day
+    let year: usize = year.base10_parse().expect("Year should be a usize literal");
+
+    let max_day: usize = max_day
         .base10_parse()
         .expect("Max day should be a usize literal");
+
+    let range = 1..=max_day;
 
     let day_idx = range.clone().map(syn::Index::from);
     let day_mod = range.map(|d| format_ident!("day_{:02}", d));
     let day_mod2 = day_mod.clone();
+
+    let max_day = max_day as i32;
 
     let expanded = quote! {
         use std::{fs::File, io::BufReader};
@@ -72,6 +75,10 @@ pub fn generate_year(input: TokenStream) -> TokenStream {
                   (#day_idx, 2) => #day_mod2::part_02(reader),)*
                 _ => eprintln!("No solution exists for day {} of {}", day, #year),
             }
+        }
+
+        pub fn days_solved() -> i32 {
+            #max_day
         }
     };
 
