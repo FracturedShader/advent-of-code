@@ -85,6 +85,30 @@ fn parse_input(reader: Option<impl BufRead>) -> (Vec<Elf>, Vec<u32>) {
     (elves, sum_calories)
 }
 
+/// A solution to part 1 that can handle arbitrarily large input with constant memory usage
+fn _part_01_streaming(reader: impl BufRead) -> i32 {
+    let mut highest = 0;
+    let mut current = 0;
+
+    for l in reader.lines().flatten() {
+        if l.is_empty() {
+            if current > highest {
+                highest = current;
+            }
+
+            current = 0
+        } else {
+            current += l.parse::<i32>().expect("Non-empty lines must be numbers");
+        }
+    }
+
+    if current > highest {
+        current
+    } else {
+        highest
+    }
+}
+
 pub fn part_01(reader: Option<impl BufRead>) {
     let (_, sum_calories) = parse_input(reader);
 
@@ -92,6 +116,34 @@ pub fn part_01(reader: Option<impl BufRead>) {
         "Most calories carried by an Elf: {}",
         sum_calories.iter().max().unwrap()
     );
+}
+
+/// A solution to part 2 that can handle arbitrarily large input with constant memory usage
+fn _part_02_streaming(reader: impl BufRead) -> i32 {
+    let mut top_three = vec![0; 3];
+
+    let mut try_insert = |v| {
+        if v > top_three[0] {
+            top_three[0] = v;
+            top_three.sort();
+        }
+    };
+
+    let mut current = 0;
+
+    for l in reader.lines().flatten() {
+        if l.is_empty() {
+            try_insert(current);
+
+            current = 0
+        } else {
+            current += l.parse::<i32>().expect("Non-empty lines must be numbers");
+        }
+    }
+
+    try_insert(current);
+
+    top_three.iter().sum()
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
