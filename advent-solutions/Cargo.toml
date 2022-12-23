@@ -9,3 +9,5 @@ edition = "2021"
 advent-macros = { path = "../advent-macros" }
 md-5 = "0.10.0"
 itertools = "0.10.0"
+anyhow = "1.0.68"
+thiserror = "1.0.38"
