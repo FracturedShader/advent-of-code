@@ -43,7 +43,7 @@ impl ItemSet {
         ItemSet(self.0 & other.0)
     }
 
-    fn union(self, other: Self) -> Self {
+    fn _union(self, other: Self) -> Self {
         ItemSet(self.0 | other.0)
     }
 }
