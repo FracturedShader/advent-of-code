@@ -28,20 +28,19 @@ where
 }
 
 /// A `SectionRange` for this problem is represented by two numbers separated with a hyphen
-impl<D, I> TryFrom<&str> for SectionRange<I>
+impl<D, I> FromStr for SectionRange<I>
 where
     D: Debug,
     I: FromStr<Err = D>,
 {
-    type Error = &'static str;
+    type Err = &'static str;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        value
-            .split_once("-")
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.split_once("-")
             .map(|(start, end)| {
                 SectionRange(
-                    start.parse().expect("Range start should be a number"),
-                    end.parse().expect("Range end should be a number"),
+                    start.parse().expect("range start should be a number"),
+                    end.parse().expect("range end should be a number"),
                 )
             })
             .ok_or("Provided str does not represent a range")
@@ -68,9 +67,9 @@ where
                 .split_once(",")
                 .map(|(l, r)| {
                     (
-                        SectionRange::try_from(l)
+                        l.parse()
                             .expect("first part of line should represent a range"),
-                        SectionRange::try_from(r)
+                        r.parse()
                             .expect("second part of line should represent a range"),
                     )
                 })
