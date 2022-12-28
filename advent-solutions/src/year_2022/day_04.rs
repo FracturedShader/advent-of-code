@@ -36,7 +36,7 @@ where
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.split_once("-")
+        s.split_once('-')
             .map(|(start, end)| {
                 SectionRange(
                     start.parse().expect("range start should be a number"),
@@ -64,7 +64,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         self.0.next().map(|l| {
             l.as_ref()
-                .split_once(",")
+                .split_once(',')
                 .map(|(l, r)| {
                     (
                         l.parse()
@@ -80,8 +80,8 @@ where
 
 /// Helper trait to add the method `as_range_pairs` to any `Iterator` that it applies to. This
 /// method converts the `Iterator` into one that outputs pairs of `SectionRange`s instead.
-trait AsRangePairs<S: AsRef<str>>: Iterator<Item = S> {
-    fn as_range_pairs(self) -> RangePairs<S, Self>
+trait IntoRangePairs<S: AsRef<str>>: Iterator<Item = S> {
+    fn range_pairs(self) -> RangePairs<S, Self>
     where
         Self: Sized,
     {
@@ -89,14 +89,14 @@ trait AsRangePairs<S: AsRef<str>>: Iterator<Item = S> {
     }
 }
 
-impl<S: AsRef<str>, T: Sized> AsRangePairs<S> for T where T: Iterator<Item = S> {}
+impl<S: AsRef<str>, T: Sized> IntoRangePairs<S> for T where T: Iterator<Item = S> {}
 
 pub fn part_01(reader: Option<impl BufRead>) {
     let contain_count: u32 = reader
         .expect("data should be available for this problem")
         .lines()
         .flatten()
-        .as_range_pairs()
+        .range_pairs()
         .map(|(l, r)| u32::from(l.contains_range(&r) || r.contains_range(&l)))
         .sum();
 
@@ -111,7 +111,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         .expect("data should be available for this problem")
         .lines()
         .flatten()
-        .as_range_pairs()
+        .range_pairs()
         .map(|(l, r)| u32::from(l.overlaps(&r)))
         .sum();
 
@@ -134,7 +134,7 @@ mod test {
 6-6,4-6
 2-6,4-8"#;
 
-        let ranges = input.lines().as_range_pairs().collect::<Vec<_>>();
+        let ranges = input.lines().range_pairs().collect::<Vec<_>>();
 
         assert_eq!(
             vec![
