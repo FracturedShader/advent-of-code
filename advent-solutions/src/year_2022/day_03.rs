@@ -96,8 +96,7 @@ where
         .into_iter()
         .map(ItemSet::from_iter)
         .reduce(ItemSet::intersection)
-        .map(|ii| Item::try_from(ii).ok())
-        .flatten()
+        .and_then(|ii| Item::try_from(ii).ok())
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {

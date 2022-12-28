@@ -77,8 +77,8 @@ impl Stacks {
         let mut stacks = vec![vec![' '; n_rows]; n_cols];
 
         for r in 0..n_rows {
-            for c in 0..n_cols {
-                stacks[c][r] = stacks_transposed[n_rows - r - 1][c];
+            for (c, item) in stacks_transposed[n_rows - r - 1].iter().enumerate() {
+                stacks[c][r] = *item;
             }
         }
 
@@ -119,13 +119,11 @@ impl Stacks {
         let split_point = from_len - m.count;
         let old_len = self.0[m.to_stack].len();
 
-        self.0[m.to_stack].reserve(m.count);
+        self.0[m.to_stack].resize(old_len + m.count, ' ');
 
         // Safety: `StackMove` guarantees source and destination are different, source is checked
         // to conatin the requested count, and destination has required space set aside
         unsafe {
-            self.0[m.to_stack].set_len(old_len + m.count);
-
             std::ptr::copy_nonoverlapping(
                 &self.0[m.from_stack][split_point] as _,
                 &mut self.0[m.to_stack][old_len] as _,

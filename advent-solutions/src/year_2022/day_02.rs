@@ -153,7 +153,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         .lines()
         .flatten()
         .map(|l| {
-            let mut parts = l.split(" ").flat_map(|c| c.bytes().nth(0));
+            let mut parts = l.split(' ').flat_map(|c| c.as_bytes().first()).copied();
 
             let other = parts
                 .next()
