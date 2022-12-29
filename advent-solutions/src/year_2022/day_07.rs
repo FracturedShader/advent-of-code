@@ -65,22 +65,18 @@ impl Path {
     /// navigation to the root of the file system. The remaining parts are parsed as either moving
     /// up a directory or down into another directory.
     fn segments(&self) -> impl Iterator<Item = Result<PathSegment, &'static str>> {
-        let (first, rest) = if self.0.starts_with('/') {
-            (Some(Ok(PathSegment::Root)), &self.0[1..])
+        let source = if self.0.ends_with('/') {
+            &self.0[..(self.0.len() - 1)]
         } else {
-            (None, self.0.as_str())
+            &self.0
         };
 
-        first.into_iter().chain(
-            rest.split('/')
-                .enumerate()
-                .filter(|(i, s)| *i != 0 || !s.is_empty())
-                .map(|(_, s)| match s {
-                    ".." => Ok(PathSegment::Up),
-                    s if s.is_empty() => Err("path should consist of valid segments"),
-                    _ => Ok(PathSegment::Down(s)),
-                }),
-        )
+        source.split('/').enumerate().map(|es| match es {
+            (0, "") => Ok(PathSegment::Root),
+            (_, "") => Err("path should consist of valid segments"),
+            (_, "..") => Ok(PathSegment::Up),
+            (_, s) => Ok(PathSegment::Down(s)),
+        })
     }
 }
 
@@ -242,15 +238,17 @@ where
             })
             .map(|mut c| {
                 if let Command::List(ref mut v) = &mut c {
-                    let entries = (&mut self.source)
-                        .take_while_lossless(TerminalLine::is_output, |tl| self.extra = Some(tl))
-                        .map(|tl| {
-                            tl.raw_line().parse().expect(
+                    v.extend(
+                        (&mut self.source)
+                            .take_while_lossless(TerminalLine::is_output, |tl| {
+                                self.extra = Some(tl)
+                            })
+                            .map(|tl| {
+                                tl.raw_line().parse().expect(
                                 "output lines following ls should all be file/directory details",
                             )
-                        });
-
-                    v.extend(entries);
+                            }),
+                    );
                 }
 
                 c
@@ -515,25 +513,16 @@ impl<'a> DirectorySizer<'a> {
         } else {
             let needed = current_used - max_used;
 
-            let candidates = self.0.iter().filter_map(|e| {
-                if e.is_directory && e.size_bytes >= needed {
-                    Some((e.size_bytes, e.name))
-                } else {
-                    None
-                }
-            });
-
-            let mut best = None;
-
-            for c in candidates {
-                best = match (best, c) {
-                    (None, _) => Some(c),
-                    (Some((bs, _)), (cs, _)) if cs < bs => Some(c),
-                    _ => best,
-                };
-            }
-
-            best
+            self.0
+                .iter()
+                .filter_map(|e| {
+                    if e.is_directory && e.size_bytes >= needed {
+                        Some((e.size_bytes, e.name))
+                    } else {
+                        None
+                    }
+                })
+                .min()
         }
     }
 }
