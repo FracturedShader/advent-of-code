@@ -1,5 +1,6 @@
 mod year_2015;
 mod year_2022;
+mod year_2023;
 
 fn main() {
     let mut args = std::env::args();
@@ -11,6 +12,7 @@ fn main() {
         let opts: Vec<(i32, &dyn Fn() -> i32)> = vec![
             (2015, &year_2015::days_solved),
             (2022, &year_2022::days_solved),
+            (2023, &year_2023::days_solved),
         ];
 
         for (year, solved) in opts {
@@ -44,6 +46,7 @@ fn main() {
     match year {
         2015 => year_2015::run_solution(day, part),
         2022 => year_2022::run_solution(day, part),
+        2023 => year_2023::run_solution(day, part),
         _ => eprintln!("No solutions found for the year {}", year),
     }
 }
