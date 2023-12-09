@@ -178,10 +178,10 @@ mod test {
 
     #[test]
     fn extract_numerals() {
-        let input = r#"1abc2
+        let input = r"1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
-treb7uchet"#;
+treb7uchet";
 
         let vals = BufReader::new(input.as_bytes())
             .lines()
@@ -193,13 +193,13 @@ treb7uchet"#;
 
     #[test]
     fn extract_numbers() {
-        let input = r#"two1nine
+        let input = r"two1nine
 eightwothree
 abcone2threexyz
 xtwone3four
 4nineeightseven2
 zoneight234
-7pqrstsixteen"#;
+7pqrstsixteen";
 
         let vals = BufReader::new(input.as_bytes())
             .lines()

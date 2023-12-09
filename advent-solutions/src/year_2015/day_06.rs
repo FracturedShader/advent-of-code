@@ -189,7 +189,7 @@ impl RequestedAction {
 }
 
 fn process_instructions(reader: impl BufRead, lights: &mut impl LightChanger) {
-    for line in reader.lines().filter_map(|l| l.ok()) {
+    for line in reader.lines().map_while(Result::ok) {
         let mut parts = line.split_ascii_whitespace();
         let action = RequestedAction::from_parts(&mut parts);
         let area = Rect::from_parts(&parts.collect::<Vec<_>>());
@@ -203,7 +203,7 @@ fn process_instructions(reader: impl BufRead, lights: &mut impl LightChanger) {
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {
-    let mut simple_lights: SimpleLights = Default::default();
+    let mut simple_lights = SimpleLights::default();
 
     process_instructions(reader.unwrap(), &mut simple_lights);
 
@@ -211,7 +211,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut var_lights: VariableLights = Default::default();
+    let mut var_lights = VariableLights::default();
 
     process_instructions(reader.unwrap(), &mut var_lights);
 

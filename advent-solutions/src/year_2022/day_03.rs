@@ -79,10 +79,10 @@ impl TryFrom<ItemSet> for Item {
     type Error = anyhow::Error;
 
     fn try_from(value: ItemSet) -> Result<Self, Self::Error> {
-        if value.0.count_ones() != 1 {
-            Err(SetNotSingleItemError().into())
-        } else {
+        if value.0.count_ones() == 1 {
             Ok(Item((value.0 - 1).count_ones()))
+        } else {
+            Err(SetNotSingleItemError().into())
         }
     }
 }
@@ -122,10 +122,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
         })
         .sum::<u32>();
 
-    println!(
-        "Sum of priorities present in both compartments of each rucksack: {}",
-        priority_sum
-    );
+    println!("Sum of priorities present in both compartments of each rucksack: {priority_sum}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
@@ -156,7 +153,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         })
         .sum::<u32>();
 
-    println!("Sum of priorities common within groups: {}", priority_sum);
+    println!("Sum of priorities common within groups: {priority_sum}");
 }
 
 #[cfg(test)]
@@ -175,12 +172,12 @@ mod test {
 
     #[test]
     fn rucksack_common_item() {
-        let input = r#"vJrwpWtwJgWrhcsFMMfFFhFp
+        let input = r"vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
 wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw"#;
+CrZsJsPPZsGzwwsLwLmpwMDw";
 
         let common = input
             .lines()
@@ -200,12 +197,12 @@ CrZsJsPPZsGzwwsLwLmpwMDw"#;
 
     #[test]
     fn group_common_item() {
-        let input = r#"vJrwpWtwJgWrhcsFMMfFFhFp
+        let input = r"vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
 wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw"#;
+CrZsJsPPZsGzwwsLwLmpwMDw";
 
         let group_items = input
             .lines()

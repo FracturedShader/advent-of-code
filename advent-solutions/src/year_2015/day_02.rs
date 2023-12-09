@@ -23,9 +23,9 @@ fn wrap_more_gifts(req: &mut WrapRequirements, line: &str) {
 }
 
 fn wrap_gifts(reader: impl BufRead) -> WrapRequirements {
-    let mut reqs = Default::default();
+    let mut reqs = WrapRequirements::default();
 
-    for line in reader.lines().filter_map(|l| l.ok()) {
+    for line in reader.lines().map_while(Result::ok) {
         wrap_more_gifts(&mut reqs, &line);
     }
 
@@ -48,18 +48,18 @@ pub fn part_02(reader: Option<impl BufRead>) {
 
 #[cfg(test)]
 mod test {
-    use super::wrap_more_gifts;
+    use super::*;
 
     #[test]
     fn paper_ribbons() {
-        let mut reqs = Default::default();
+        let mut reqs = WrapRequirements::default();
 
         wrap_more_gifts(&mut reqs, "2x3x4");
 
         assert_eq!(reqs.paper_area, 58);
         assert_eq!(reqs.ribbon_length, 34);
 
-        let mut reqs = Default::default();
+        let mut reqs = WrapRequirements::default();
 
         wrap_more_gifts(&mut reqs, "1x1x10");
 

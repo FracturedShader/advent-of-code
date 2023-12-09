@@ -25,7 +25,7 @@ impl Aunt {
 }
 
 fn mfcsam_basic() -> HashMap<String, usize> {
-    r#"children: 3
+    r"children: 3
 cats: 7
 samoyeds: 2
 pomeranians: 3
@@ -34,7 +34,7 @@ vizslas: 0
 goldfish: 5
 trees: 3
 cars: 2
-perfumes: 1"#
+perfumes: 1"
         .lines()
         .map(|kvp| {
             let (k, v) = kvp.split_once(": ").unwrap();

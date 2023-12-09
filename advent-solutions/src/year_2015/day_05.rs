@@ -2,7 +2,7 @@ use std::{collections::HashSet, io::BufRead};
 
 fn string_is_nice(input: &str) -> bool {
     let vowels = "aeiou";
-    let disallowed = vec![('a', 'b'), ('c', 'd'), ('p', 'q'), ('x', 'y')];
+    let disallowed = [('a', 'b'), ('c', 'd'), ('p', 'q'), ('x', 'y')];
     let mut vowel_count = 0;
     let mut double_count = 0;
     let mut prev_char = '\0';
@@ -55,7 +55,7 @@ where
 {
     reader
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .filter(|s| tester(s))
         .count()
 }

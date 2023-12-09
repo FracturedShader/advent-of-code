@@ -1,7 +1,6 @@
 use std::io::BufRead;
 
 struct Reindeer {
-    _name: String,
     speed: u32,
     fly_time: u32,
     rest_time: u32,
@@ -17,7 +16,6 @@ impl Reindeer {
         let rest_time = parts.nth(6).unwrap().parse().unwrap();
 
         Self {
-            _name,
             speed,
             fly_time,
             rest_time,
@@ -65,26 +63,26 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let max_dist = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(|ref l| Reindeer::from_line(l))
         .map(|r| r.traveled(2503))
         .max()
         .unwrap();
 
-    println!("Winning distance: {}", max_dist);
+    println!("Winning distance: {max_dist}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
     let reindeer = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(|ref l| Reindeer::from_line(l))
         .collect::<Vec<_>>();
 
     let max_points = per_second_scoring(&reindeer);
 
-    println!("Winning points: {}", max_points);
+    println!("Winning points: {max_points}");
 }
 
 #[cfg(test)]

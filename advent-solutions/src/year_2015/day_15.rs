@@ -55,7 +55,7 @@ fn add_valid_cases(base: &[i64], n: usize, q: &mut VecDeque<Vec<i64>>) {
             nc[i] += 1;
             nc[j] -= 1;
 
-            q.push_back(nc.to_vec());
+            q.push_back(nc.clone());
         }
     }
 }
@@ -80,11 +80,12 @@ fn eval_candidate(c: &[i64], ingredients: &[Ingredient]) -> i64 {
 
 // Assumes the multi-dimensional evaluation space forms a convex hull and performs gradient-ascent
 fn highest_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>, i64) {
-    let num_ingredients = ingredients.len();
-    let initial_guess = teaspoons / (num_ingredients as i64);
-    let mut guesses = vec![initial_guess; num_ingredients];
+    let len = ingredients.len();
+    let num_ingredients = i64::try_from(len).expect("number of ingredients should fit in an i64");
+    let initial_guess = teaspoons / num_ingredients;
+    let mut guesses = vec![initial_guess; len];
 
-    guesses[0] = teaspoons - (((num_ingredients as i64) - 1) * initial_guess);
+    guesses[0] = teaspoons - ((num_ingredients - 1) * initial_guess);
 
     let mut candidates = VecDeque::with_capacity(64);
 
@@ -92,7 +93,7 @@ fn highest_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>, i64) 
 
     let mut best_total = 0;
     let mut best_candidate = vec![];
-    let mut tested: HashMap<Vec<i64>, i64> = Default::default();
+    let mut tested: HashMap<Vec<i64>, i64> = HashMap::default();
 
     while let Some(c) = candidates.pop_front() {
         if tested.contains_key(&c) {
@@ -105,7 +106,7 @@ fn highest_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>, i64) 
             best_total = total;
             best_candidate = c.clone();
 
-            add_valid_cases(&c, num_ingredients, &mut candidates);
+            add_valid_cases(&c, len, &mut candidates);
         }
 
         tested.insert(c, total);
@@ -124,7 +125,7 @@ fn highest_500cal_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>
 
     let mut best_total = 0;
     let mut best_candidate = vec![];
-    let mut tested: HashMap<Vec<i64>, i64> = Default::default();
+    let mut tested: HashMap<Vec<i64>, i64> = HashMap::default();
 
     while let Some(c) = candidates.pop_front() {
         if tested.contains_key(&c) {
@@ -159,7 +160,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let ingredients = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(Ingredient::parse)
         .collect::<Vec<_>>();
 
@@ -170,7 +171,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
     let ingredients = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(Ingredient::parse)
         .collect::<Vec<_>>();
 
@@ -183,27 +184,27 @@ mod test {
 
     #[test]
     fn highest_total_score() {
-        let ingredients_data = r#"Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
-Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3"#;
+        let ingredients_data = r"Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
+Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3";
 
         let ingredients = ingredients_data
             .lines()
             .map(Ingredient::parse)
             .collect::<Vec<_>>();
 
-        assert_eq!(highest_score(100, &ingredients).1, 62842880);
+        assert_eq!(highest_score(100, &ingredients).1, 62_842_880);
     }
 
     #[test]
     fn highest_cal_score() {
-        let ingredients_data = r#"Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
-Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3"#;
+        let ingredients_data = r"Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
+Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3";
 
         let ingredients = ingredients_data
             .lines()
             .map(Ingredient::parse)
             .collect::<Vec<_>>();
 
-        assert_eq!(highest_500cal_score(100, &ingredients).1, 57600000);
+        assert_eq!(highest_500cal_score(100, &ingredients).1, 57_600_000);
     }
 }

@@ -35,7 +35,7 @@ fn for_each_result<F>(reader: impl BufRead, callback: F)
 where
     F: Fn(&FloorTraversalResult) + 'static,
 {
-    for line in reader.lines().filter_map(|l| l.ok()) {
+    for line in reader.lines().map_while(Result::ok) {
         let walk_results = walk_floors(&line);
 
         callback(&walk_results);

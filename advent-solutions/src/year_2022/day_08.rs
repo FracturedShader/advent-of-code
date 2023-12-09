@@ -86,7 +86,7 @@ where
     let mut dist = [0; HEIGHT_LIMIT];
 
     for (&height, score) in iter {
-        scenic_op::<HEIGHT_LIMIT>(height, score, &mut dist)
+        scenic_op::<HEIGHT_LIMIT>(height, score, &mut dist);
     }
 }
 
@@ -200,13 +200,7 @@ impl TreeMap {
         // that transposing the data just to make it cache friendly only to have to transpose back
         // at the end seems wasteful.
 
-        for i in self
-            .data
-            .iter()
-            .zip(dest.iter_mut())
-            .chunks(grid_width)
-            .into_iter()
-        {
+        for i in &self.data.iter().zip(dest.iter_mut()).chunks(grid_width) {
             for t in i.zip(cell_data_row.iter_mut()) {
                 let ((s, d), c) = t;
 
@@ -216,13 +210,12 @@ impl TreeMap {
 
         reset_cell_data(cell_data_row);
 
-        for i in self
+        for i in &self
             .data
             .iter()
             .zip(dest.iter_mut())
             .rev()
             .chunks(grid_width)
-            .into_iter()
         {
             for t in i.zip(cell_data_row.iter_mut()) {
                 let ((s, d), c) = t;
@@ -249,9 +242,10 @@ where
             let l = l.as_ref();
             let line_width = l.len();
 
-            if *width.get_or_insert(line_width) != line_width {
-                panic!("All rows must be the same length in a TreeMap");
-            }
+            assert!(
+                *width.get_or_insert(line_width) == line_width,
+                "All rows must be the same length in a TreeMap"
+            );
 
             data.extend(l.bytes().map(|b| match b {
                 b'0'..=b'9' => b - b'0',
@@ -270,7 +264,7 @@ where
 
 pub fn part_01(reader: Option<impl BufRead>) {
     let reader = reader.expect("data should be available for this problem");
-    let map = reader.lines().filter_map(Result::ok).collect::<TreeMap>();
+    let map = reader.lines().map_while(Result::ok).collect::<TreeMap>();
     let vis = map.compute_visibility();
 
     println!("Total visible trees: {}", vis.num_visible());
@@ -278,7 +272,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
 
 pub fn part_02(reader: Option<impl BufRead>) {
     let reader = reader.expect("data should be available for this problem");
-    let map = reader.lines().filter_map(Result::ok).collect::<TreeMap>();
+    let map = reader.lines().map_while(Result::ok).collect::<TreeMap>();
     let scores = map.compute_scenic_score();
 
     println!("Highest scenic score: {}", scores.highest_score());
@@ -288,11 +282,11 @@ pub fn part_02(reader: Option<impl BufRead>) {
 mod test {
     use super::*;
 
-    const TEST_DATA: &str = r#"30373
+    const TEST_DATA: &str = r"30373
 25512
 65332
 33549
-35390"#;
+35390";
 
     #[test]
     fn parse_input() {

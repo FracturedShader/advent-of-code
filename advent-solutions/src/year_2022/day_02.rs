@@ -144,7 +144,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
         })
         .sum::<u32>();
 
-    println!("Strategy guide total score: {}", total_score);
+    println!("Strategy guide total score: {total_score}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
@@ -153,7 +153,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         .lines()
         .flatten()
         .map(|l| {
-            let mut parts = l.split(' ').flat_map(|c| c.as_bytes().first()).copied();
+            let mut parts = l.split(' ').filter_map(|c| c.as_bytes().first()).copied();
 
             let other = parts
                 .next()
@@ -171,7 +171,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         })
         .sum::<u32>();
 
-    println!("Strategy guide total score: {}", total_score);
+    println!("Strategy guide total score: {total_score}");
 }
 
 #[cfg(test)]
@@ -180,9 +180,9 @@ mod test {
 
     #[test]
     fn parse_hands() {
-        let input = r#"A Y
+        let input = r"A Y
 B X
-C Z"#;
+C Z";
 
         let hands = input
             .bytes()
@@ -205,14 +205,12 @@ C Z"#;
 
     #[test]
     fn compete_hands() {
-        let hands = vec![
-            HandShape::Rock,
+        let hands = [HandShape::Rock,
             HandShape::Paper,
             HandShape::Paper,
             HandShape::Rock,
             HandShape::Scissors,
-            HandShape::Scissors,
-        ];
+            HandShape::Scissors];
 
         let outcomes = hands
             .chunks_exact(2)
@@ -227,16 +225,14 @@ C Z"#;
 
     #[test]
     fn score_hands() {
-        let hands = vec![
-            HandShape::Rock,
+        let hands = [HandShape::Rock,
             HandShape::Paper,
             HandShape::Paper,
             HandShape::Rock,
             HandShape::Scissors,
-            HandShape::Scissors,
-        ];
+            HandShape::Scissors];
 
-        let outcomes = vec![RoundOutcome::Win, RoundOutcome::Lose, RoundOutcome::Draw];
+        let outcomes = [RoundOutcome::Win, RoundOutcome::Lose, RoundOutcome::Draw];
 
         let scores = hands
             .iter()
@@ -251,14 +247,14 @@ C Z"#;
 
     #[test]
     fn parse_mixed() {
-        let input = r#"A Y
+        let input = r"A Y
 B X
-C Z"#;
+C Z";
 
         let rounds = input
             .lines()
             .map(|l| {
-                let mut iter = l.split(" ").map(|c| c.bytes().nth(0).unwrap());
+                let mut iter = l.split(' ').map(|c| c.as_bytes()[0]);
 
                 (
                     iter.next().map(HandShape::try_from).unwrap().unwrap(),
@@ -279,11 +275,9 @@ C Z"#;
 
     #[test]
     fn score_mixed() {
-        let rounds = vec![
-            (HandShape::Rock, RoundOutcome::Draw),
+        let rounds = [(HandShape::Rock, RoundOutcome::Draw),
             (HandShape::Paper, RoundOutcome::Lose),
-            (HandShape::Scissors, RoundOutcome::Win),
-        ];
+            (HandShape::Scissors, RoundOutcome::Win)];
 
         let scores = rounds
             .iter()

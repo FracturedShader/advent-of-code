@@ -101,8 +101,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
         .sum();
 
     println!(
-        "Number of assignment pairs where one fully contains the other: {}",
-        contain_count
+        "Number of assignment pairs where one fully contains the other: {contain_count}"
     );
 }
 
@@ -116,8 +115,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         .sum();
 
     println!(
-        "Number of assignment pairs where one overlaps the other: {}",
-        overlap_count
+        "Number of assignment pairs where one overlaps the other: {overlap_count}"
     );
 }
 
@@ -127,12 +125,12 @@ mod test {
 
     #[test]
     fn parse_ranges() {
-        let input = r#"2-4,6-8
+        let input = r"2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7
 6-6,4-6
-2-6,4-8"#;
+2-6,4-8";
 
         let ranges = input.lines().range_pairs().collect::<Vec<_>>();
 

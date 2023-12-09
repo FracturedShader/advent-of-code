@@ -30,9 +30,7 @@ impl Token {
 impl ToString for Token {
     fn to_string(&self) -> String {
         match self {
-            Token::Literal(s) => s.clone(),
-            Token::Ident(s) => s.clone(),
-            Token::Op(s) => s.clone(),
+            Token::Literal(s) | Token::Ident(s) | Token::Op(s) => s.clone(),
         }
     }
 }
@@ -65,7 +63,7 @@ impl WireValue {
         match token {
             Token::Literal(l) => Some(WireValue::Literal(l.parse().unwrap())),
             Token::Ident(s) => Some(WireValue::Ident(s.clone())),
-            _ => None,
+            Token::Op(_) => None,
         }
     }
 
@@ -190,9 +188,9 @@ impl LogicWires {
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {
-    let mut wires: LogicWires = Default::default();
+    let mut wires = LogicWires::default();
 
-    for line in reader.unwrap().lines().filter_map(|l| l.ok()) {
+    for line in reader.unwrap().lines().map_while(Result::ok) {
         wires.add_connection(&line);
     }
 
@@ -200,9 +198,9 @@ pub fn part_01(reader: Option<impl BufRead>) {
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut wires: LogicWires = Default::default();
+    let mut wires = LogicWires::default();
 
-    for line in reader.unwrap().lines().filter_map(|l| l.ok()) {
+    for line in reader.unwrap().lines().map_while(Result::ok) {
         wires.add_connection(&line);
     }
 
@@ -216,16 +214,16 @@ mod test {
 
     #[test]
     fn bitwise() {
-        let input = r#"123 -> x
+        let input = r"123 -> x
 456 -> y
 x AND y -> d
 x OR y -> e
 x LSHIFT 2 -> f
 y RSHIFT 2 -> g
 NOT x -> h
-NOT y -> i"#;
+NOT y -> i";
 
-        let mut wires: LogicWires = Default::default();
+        let mut wires = LogicWires::default();
 
         for l in input.lines() {
             wires.add_connection(l);
