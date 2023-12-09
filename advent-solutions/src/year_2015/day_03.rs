@@ -61,7 +61,7 @@ fn for_instruction_set<F>(reader: impl BufRead, visit_method: F)
 where
     F: Fn(&str) -> usize,
 {
-    for line in reader.lines().filter_map(|l| l.ok()) {
+    for line in reader.lines().map_while(Result::ok) {
         println!("Houses visited at least once: {}", visit_method(&line));
     }
 }

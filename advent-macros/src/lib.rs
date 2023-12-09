@@ -41,6 +41,8 @@ impl Parse for YearInput {
 /// `days_solved() -> i32` function to see how many days have solutions. The macro expects to be
 /// called with two integar literals such as `generate_year!(2015 19);` with the literals
 /// representing the modules year and highest solved day (inclusive) respectively.
+/// # Panics
+/// Panics if input cannot be interpreted as year: usize, day: i32
 #[proc_macro]
 pub fn generate_year(input: TokenStream) -> TokenStream {
     let YearInput { year, max_day } = parse_macro_input!(input as YearInput);
@@ -57,7 +59,7 @@ pub fn generate_year(input: TokenStream) -> TokenStream {
     let day_mod = range.map(|d| format_ident!("day_{:02}", d));
     let day_mod2 = day_mod.clone();
 
-    let max_day = max_day as i32;
+    let max_day = i32::try_from(max_day).expect("maximum day should fit in i32");
 
     let expanded = quote! {
         use std::{fs::File, io::BufReader};

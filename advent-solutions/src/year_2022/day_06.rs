@@ -20,7 +20,7 @@ where
             *i >= SEQ_LEN
                 && ring_buffer
                     .iter()
-                    .try_fold(0, |a, &v| if a & v != 0 { None } else { Some(a | v) })
+                    .try_fold(0, |a, &v| if a & v == 0 { Some(a | v) } else { None })
                     .is_some()
         })
         .map(|(i, _)| i + 1)
@@ -31,7 +31,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let start = marker_end::<4, _>(reader.bytes().flatten())
         .expect("data should contain start-of-packet marker");
 
-    println!("Packet data starts after character: {}", start);
+    println!("Packet data starts after character: {start}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
@@ -39,7 +39,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
     let start = marker_end::<14, _>(reader.bytes().flatten())
         .expect("data should contain start-of-message marker");
 
-    println!("Message starts after character: {}", start);
+    println!("Message starts after character: {start}");
 }
 
 #[cfg(test)]

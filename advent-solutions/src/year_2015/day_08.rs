@@ -42,7 +42,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let total_diff = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(|l| {
             let lengths = str_lengths(&l);
 
@@ -50,14 +50,14 @@ pub fn part_01(reader: Option<impl BufRead>) {
         })
         .sum::<usize>();
 
-    println!("Total diff: {}", total_diff);
+    println!("Total diff: {total_diff}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
     let total_diff = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(|l| {
             let lengths = str_encode_lengths(&l);
 
@@ -65,7 +65,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
         })
         .sum::<usize>();
 
-    println!("Total diff: {}", total_diff);
+    println!("Total diff: {total_diff}");
 }
 
 #[cfg(test)]

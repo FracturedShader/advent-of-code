@@ -77,7 +77,7 @@ fn parse_input(reader: Option<impl BufRead>) -> (Vec<Elf>, Vec<u32>) {
         reader
             .expect("This problem requires data input")
             .lines()
-            .filter_map(Result::ok),
+            .map_while(Result::ok),
     );
 
     let sum_calories = elves.iter().map(Elf::calories_carried).collect();
@@ -96,7 +96,7 @@ fn _part_01_streaming(reader: impl BufRead) -> i32 {
                 highest = current;
             }
 
-            current = 0
+            current = 0;
         } else {
             current += l.parse::<i32>().expect("Non-empty lines must be numbers");
         }
@@ -120,12 +120,12 @@ pub fn part_01(reader: Option<impl BufRead>) {
 
 /// A solution to part 2 that can handle arbitrarily large input with constant memory usage
 fn _part_02_streaming(reader: impl BufRead) -> i32 {
-    let mut top_three = vec![0; 3];
+    let mut top_three = [0; 3];
 
     let mut try_insert = |v| {
         if v > top_three[0] {
             top_three[0] = v;
-            top_three.sort();
+            top_three.sort_unstable();
         }
     };
 
@@ -135,7 +135,7 @@ fn _part_02_streaming(reader: impl BufRead) -> i32 {
         if l.is_empty() {
             try_insert(current);
 
-            current = 0
+            current = 0;
         } else {
             current += l.parse::<i32>().expect("Non-empty lines must be numbers");
         }
@@ -166,7 +166,7 @@ mod test {
     /// Verify that parsing all elves and getting their total carried calories works as intended
     #[test]
     fn parse_sum() {
-        let input = r#"1000
+        let input = r"1000
 2000
 3000
 
@@ -179,7 +179,7 @@ mod test {
 8000
 9000
 
-10000"#;
+10000";
 
         let (_, sum_calories) = parse_input(Some(BufReader::new(input.as_bytes())));
 

@@ -85,19 +85,23 @@ impl World {
             for (j, c) in r.iter_mut().enumerate() {
                 let prev = src[i][j];
 
-                let i = i as isize;
-                let j = j as isize;
+                let i = isize::try_from(i).expect("board should fit in isize");
+                let j = isize::try_from(j).expect("board should fit in isize");
 
                 let living_neighbors = idxs
                     .iter()
                     .filter_map(|&(ri, rj)| {
-                        src.get((i + ri) as usize)
-                            .and_then(|sr| sr.get((j + rj) as usize))
+                        src.get(usize::try_from(i + ri).expect("neighbor should map to usize"))
+                            .and_then(|sr| {
+                                sr.get(
+                                    usize::try_from(j + rj).expect("neighbor should map to usize"),
+                                )
+                            })
                     })
                     .map(|&b| i32::from(b))
                     .sum::<i32>();
 
-                *c = matches!((prev, living_neighbors), (true, 2) | (true, 3) | (false, 3));
+                *c = matches!((prev, living_neighbors), (true, 2 | 3) | (false, 3));
             }
         }
 
@@ -124,7 +128,7 @@ impl Display for World {
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {
-    let mut w = World::from_data(reader.unwrap().lines().filter_map(|l| l.ok()));
+    let mut w = World::from_data(reader.unwrap().lines().map_while(Result::ok));
 
     for _ in 0..100 {
         w.step();
@@ -134,7 +138,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut w = World::from_data(reader.unwrap().lines().filter_map(|l| l.ok()));
+    let mut w = World::from_data(reader.unwrap().lines().map_while(Result::ok));
 
     w.enable_corners();
 
@@ -152,59 +156,59 @@ mod test {
 
     #[test]
     fn game_of_life_step() {
-        let initial = r#".#.#.#
+        let initial = r".#.#.#
 ...##.
 #....#
 ..#...
 #.#..#
-####.."#;
+####..";
 
-        let expected = r#"......
+        let expected = r"......
 ......
 ..##..
 ..##..
 ......
-......"#;
+......";
 
         let mut initial = World::from_data(initial.lines());
         let expected = World::from_data(expected.lines());
 
         for _ in 0..4 {
-            println!("{}", initial);
+            println!("{initial}");
             initial.step();
         }
 
-        println!("{}", initial);
+        println!("{initial}");
 
         assert_eq!(initial.current(), expected.current());
     }
 
     #[test]
     fn step_broken_corners() {
-        let initial = r#"##.#.#
+        let initial = r"##.#.#
 ...##.
 #....#
 ..#...
 #.#..#
-####.#"#;
+####.#";
 
-        let expected = r#"##.###
+        let expected = r"##.###
 .##..#
 .##...
 .##...
 #.#...
-##...#"#;
+##...#";
 
         let mut initial = World::from_data(initial.lines());
         let expected = World::from_data(expected.lines());
 
         for _ in 0..5 {
-            println!("{}", initial);
+            println!("{initial}");
             initial.step();
             initial.enable_corners();
         }
 
-        println!("{}", initial);
+        println!("{initial}");
 
         assert_eq!(initial.current(), expected.current());
     }

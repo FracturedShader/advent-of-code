@@ -10,13 +10,13 @@ fn container_combinations(to_store: usize, containers: &[usize]) -> (usize, usiz
         .map(|(i, &v)| (1 << i, v))
         .collect::<Vec<_>>();
 
-    let mut seen: HashSet<usize> = Default::default();
+    let mut seen = HashSet::<usize>::default();
     let mut combos = 0;
 
     let mut min_containers = containers.len();
     let mut min_combos = 0;
 
-    let mut candidates: VecDeque<_> = Default::default();
+    let mut candidates = VecDeque::default();
 
     candidates.push_back((0, to_store));
 
@@ -56,26 +56,26 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let containers = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .filter_map(|s| s.parse::<usize>().ok())
         .collect::<Vec<_>>();
 
     let combos = container_combinations(150, &containers).0;
 
-    println!("{}", combos);
+    println!("{combos}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
     let containers = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .filter_map(|s| s.parse::<usize>().ok())
         .collect::<Vec<_>>();
 
     let min_combos = container_combinations(150, &containers).1;
 
-    println!("{}", min_combos);
+    println!("{min_combos}");
 }
 
 #[cfg(test)]

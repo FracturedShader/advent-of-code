@@ -72,13 +72,13 @@ impl LocationGraph {
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {
-    let graph = LocationGraph::from_lines(reader.unwrap().lines().filter_map(|l| l.ok()));
+    let graph = LocationGraph::from_lines(reader.unwrap().lines().map_while(Result::ok));
 
     println!("{:?}", graph.good_traveling_salesman());
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
-    let graph = LocationGraph::from_lines(reader.unwrap().lines().filter_map(|l| l.ok()));
+    let graph = LocationGraph::from_lines(reader.unwrap().lines().map_while(Result::ok));
 
     println!("{:?}", graph.bad_traveling_salesman());
 }
@@ -89,9 +89,9 @@ mod test {
 
     #[test]
     fn shortest_distance() {
-        let data = r#"London to Dublin = 464
+        let data = r"London to Dublin = 464
 London to Belfast = 518
-Dublin to Belfast = 141"#;
+Dublin to Belfast = 141";
 
         let graph = LocationGraph::from_lines(data.lines());
         let (_, d) = graph.good_traveling_salesman();
@@ -101,9 +101,9 @@ Dublin to Belfast = 141"#;
 
     #[test]
     fn longest_distance() {
-        let data = r#"London to Dublin = 464
+        let data = r"London to Dublin = 464
 London to Belfast = 518
-Dublin to Belfast = 141"#;
+Dublin to Belfast = 141";
 
         let graph = LocationGraph::from_lines(data.lines());
         let (_, d) = graph.bad_traveling_salesman();

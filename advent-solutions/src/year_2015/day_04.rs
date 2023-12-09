@@ -9,14 +9,14 @@ where
 
     for i in 0.. {
         let mut hasher = Md5::new();
-        let input = format!("{}{}", base, i);
+        let input = format!("{base}{i}");
 
         hasher.update(input);
 
         let result = hasher.finalize();
 
         if tester(&result) {
-            println!("Hash success for: {}", i);
+            println!("Hash success for: {i}");
             break;
         }
     }

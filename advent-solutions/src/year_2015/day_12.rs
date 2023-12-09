@@ -194,22 +194,22 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let total = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(|l| sum_nums(&l))
         .sum::<i64>();
 
-    println!("Total: {}", total);
+    println!("Total: {total}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
     let total = reader
         .unwrap()
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .map(|l| non_red_sum(&l))
         .sum::<i64>();
 
-    println!("Total: {}", total);
+    println!("Total: {total}");
 }
 
 #[cfg(test)]
@@ -292,10 +292,10 @@ mod test {
     fn parse_string() {
         assert_eq!(
             BorrowedJSON::from_str(r#""test""#),
-            BorrowedJSON::String(&"test")
+            BorrowedJSON::String("test")
         );
 
-        assert_eq!(BorrowedJSON::from_str(r#""""#), BorrowedJSON::String(&""));
+        assert_eq!(BorrowedJSON::from_str(r#""""#), BorrowedJSON::String(""));
     }
 
     #[test]

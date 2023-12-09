@@ -7,7 +7,7 @@ where
     S: AsRef<str>,
     I: Iterator<Item = S>,
 {
-    let mut m: HashMap<String, HashMap<String, i64>> = Default::default();
+    let mut m = HashMap::<String, HashMap<String, i64>>::default();
 
     for l in lines {
         let mut parts = l.as_ref().split_ascii_whitespace();
@@ -44,14 +44,14 @@ fn best_seating(hap_map: &HashMap<String, HashMap<String, i64>>) -> i64 {
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {
-    let hap_map = parse_happiness_map(reader.unwrap().lines().filter_map(|l| l.ok()));
+    let hap_map = parse_happiness_map(reader.unwrap().lines().map_while(Result::ok));
     let greatest_change = best_seating(&hap_map);
 
-    println!("Total change in happiness: {}", greatest_change);
+    println!("Total change in happiness: {greatest_change}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut hap_map = parse_happiness_map(reader.unwrap().lines().filter_map(|l| l.ok()));
+    let mut hap_map = parse_happiness_map(reader.unwrap().lines().map_while(Result::ok));
     let me = "Me".to_owned();
 
     for k in hap_map.keys().map(String::to_owned).collect_vec() {
@@ -62,7 +62,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
 
     let greatest_change = best_seating(&hap_map);
 
-    println!("Total change in happiness: {}", greatest_change);
+    println!("Total change in happiness: {greatest_change}");
 }
 
 #[cfg(test)]
@@ -71,7 +71,7 @@ mod test {
 
     #[test]
     fn happiness() {
-        let data = r#"Alice would gain 54 happiness units by sitting next to Bob.
+        let data = r"Alice would gain 54 happiness units by sitting next to Bob.
 Alice would lose 79 happiness units by sitting next to Carol.
 Alice would lose 2 happiness units by sitting next to David.
 Bob would gain 83 happiness units by sitting next to Alice.
@@ -82,7 +82,7 @@ Carol would gain 60 happiness units by sitting next to Bob.
 Carol would gain 55 happiness units by sitting next to David.
 David would gain 46 happiness units by sitting next to Alice.
 David would lose 7 happiness units by sitting next to Bob.
-David would gain 41 happiness units by sitting next to Carol."#;
+David would gain 41 happiness units by sitting next to Carol.";
 
         let hap_map = parse_happiness_map(data.lines());
 

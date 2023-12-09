@@ -18,12 +18,12 @@ fn main() {
         for (year, solved) in opts {
             let avail = solved();
 
-            print!(" - {}: The first ", year);
+            print!(" - {year}: The first ");
 
             if avail == 1 {
                 print!("day is");
             } else {
-                print!("{} days are", avail);
+                print!("{avail} days are");
             }
 
             println!(" complete.");
@@ -47,6 +47,6 @@ fn main() {
         2015 => year_2015::run_solution(day, part),
         2022 => year_2022::run_solution(day, part),
         2023 => year_2023::run_solution(day, part),
-        _ => eprintln!("No solutions found for the year {}", year),
+        _ => eprintln!("No solutions found for the year {year}"),
     }
 }

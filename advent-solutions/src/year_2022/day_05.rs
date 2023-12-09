@@ -82,7 +82,7 @@ impl Stacks {
             }
         }
 
-        for s in stacks.iter_mut() {
+        for s in &mut stacks {
             let first_blank = s
                 .iter()
                 .enumerate()
@@ -112,9 +112,7 @@ impl Stacks {
     fn apply_move_9001(&mut self, m: &StackMove) {
         let from_len = self.0[m.from_stack].len();
 
-        if m.count > from_len {
-            panic!("Connot move more items than the stack contains");
-        }
+        assert!(m.count <= from_len, "Connot move more items than the stack contains");
 
         let split_point = from_len - m.count;
         let old_len = self.0[m.to_stack].len();
@@ -136,7 +134,7 @@ impl Stacks {
 
     /// Iterates the crates residing at the top of all stacks in the same order as the stacks.
     fn top_crates(&self) -> impl Iterator<Item = char> + '_ {
-        self.0.iter().flat_map(|s| s.last().copied())
+        self.0.iter().filter_map(|s| s.last().copied())
     }
 }
 
@@ -188,7 +186,7 @@ mod tests {
 
     #[test]
     fn parse_input() {
-        let input = r#"    [D]    
+        let input = r"    [D]    
 [N] [C]    
 [Z] [M] [P]
  1   2   3 
@@ -197,7 +195,7 @@ move 1 from 2 to 1
 move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2
-"#;
+";
 
         let mut lines = input.lines();
 

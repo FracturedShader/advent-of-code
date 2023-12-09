@@ -27,8 +27,7 @@ impl TerminalLine {
     /// Quick access to the trimmed source line this type was created with
     fn raw_line(&self) -> &str {
         match self {
-            Self::Command(s) => s,
-            Self::Output(s) => s,
+            Self::Command(s) | Self::Output(s) => s,
         }
     }
 }
@@ -92,8 +91,7 @@ impl StatEntry {
     /// Get the file system name of either the `Directory` or `File` this `StatEntry` represents.
     fn name(&self) -> &str {
         match self {
-            StatEntry::Directory(name) => name,
-            StatEntry::File(name, _) => name,
+            StatEntry::Directory(name) | StatEntry::File(name, _) => name,
         }
     }
 }
@@ -241,7 +239,7 @@ where
                     v.extend(
                         (&mut self.source)
                             .take_while_lossless(TerminalLine::is_output, |tl| {
-                                self.extra = Some(tl)
+                                self.extra = Some(tl);
                             })
                             .map(|tl| {
                                 tl.raw_line().parse().expect(
@@ -321,7 +319,7 @@ impl From<&StatEntry> for FileSystemEntry {
         match value {
             StatEntry::Directory(name) => Self::Directory(DirectoryEntry {
                 name: name.clone(),
-                children: Default::default(),
+                children: HashMap::default(),
             }),
             StatEntry::File(name, size_bytes) => Self::File(FileEntry {
                 name: name.clone(),
@@ -363,12 +361,12 @@ impl FileSystem {
         while let Some((idx, visited_children)) = stack.pop() {
             match &self.0[idx] {
                 FileSystemEntry::Directory(details) => {
-                    if !visited_children {
+                    if visited_children {
+                        visitor.visit_directory(idx, details);
+                    } else {
                         stack.push((idx, true));
 
                         stack.extend(details.children.values().map(|ci| (*ci, false)));
-                    } else {
-                        visitor.visit_directory(idx, details);
                     }
                 }
                 FileSystemEntry::File(details) => visitor.visit_file(idx, details),
@@ -383,7 +381,7 @@ impl FromIterator<Command> for FileSystem {
         let mut current = 0usize;
         let mut fs = vec![FileSystemEntry::Directory(DirectoryEntry {
             name: "/".into(),
-            children: Default::default(),
+            children: HashMap::default(),
         })];
 
         for cmd in iter {
@@ -448,7 +446,9 @@ impl fmt::Display for FileSystem {
 
                     // Briefly cast to BTreeMap to get consistent output
                     stack.extend(
-                        BTreeMap::from_iter(de.children.iter())
+                        de.children
+                            .iter()
+                            .collect::<BTreeMap<_, _>>()
                             .iter()
                             .rev()
                             .map(|(_, &&idx)| (depth + 1, &self.0[idx])),
@@ -481,7 +481,7 @@ impl<'a> DirectorySizer<'a> {
     /// Build a `DirectorySizer` tied to the lifetime of the passed `FileSystem`, visit all entries
     /// via the `FileSystemVisitor` trait and build up the internal size cache.
     fn for_file_system(fs: &'a FileSystem) -> Self {
-        let mut ds = Self(vec![Default::default(); fs.len()]);
+        let mut ds = Self(vec![SizeCacheEntry::default(); fs.len()]);
 
         fs.visit_depth_first(&mut ds);
 
@@ -535,7 +535,7 @@ impl<'a> FileSystemVisitor<'a> for DirectorySizer<'a> {
             .map(|(_, &i)| self.0[i].size_bytes)
             .sum();
 
-        let mut cached = &mut self.0[idx];
+        let cached = &mut self.0[idx];
 
         cached.is_directory = true;
         cached.size_bytes = total;
@@ -543,7 +543,7 @@ impl<'a> FileSystemVisitor<'a> for DirectorySizer<'a> {
     }
 
     fn visit_file(&mut self, idx: usize, entry: &'a FileEntry) {
-        let mut cached = &mut self.0[idx];
+        let cached = &mut self.0[idx];
 
         cached.is_directory = false;
         cached.size_bytes = entry.size_bytes;
@@ -599,7 +599,7 @@ mod test {
 
     #[test]
     fn parse_terminal() {
-        let input = r#"$ cd /
+        let input = r"$ cd /
 $ ls
 dir a
 14848514 b.txt
@@ -621,7 +621,7 @@ $ ls
 4060174 j
 8033020 d.log
 5626152 d.ext
-7214296 k"#;
+7214296 k";
 
         let parsed = input
             .lines()
@@ -691,8 +691,8 @@ $ ls
             Command::Jump(Path("/".into())),
             Command::List(vec![
                 StatEntry::Directory("a".into()),
-                StatEntry::File("b.txt".into(), 14848514),
-                StatEntry::File("c.dat".into(), 8504156),
+                StatEntry::File("b.txt".into(), 14_848_514),
+                StatEntry::File("c.dat".into(), 8_504_156),
                 StatEntry::Directory("d".into()),
             ]),
             Command::Jump(Path("a".into())),
@@ -708,10 +708,10 @@ $ ls
             Command::Jump(Path("..".into())),
             Command::Jump(Path("d".into())),
             Command::List(vec![
-                StatEntry::File("j".into(), 4060174),
-                StatEntry::File("d.log".into(), 8033020),
-                StatEntry::File("d.ext".into(), 5626152),
-                StatEntry::File("k".into(), 7214296),
+                StatEntry::File("j".into(), 4_060_174),
+                StatEntry::File("d.log".into(), 8_033_020),
+                StatEntry::File("d.ext".into(), 5_626_152),
+                StatEntry::File("k".into(), 7_214_296),
             ]),
         ];
 
@@ -724,8 +724,8 @@ $ ls
             Command::Jump(Path("/".into())),
             Command::List(vec![
                 StatEntry::Directory("a".into()),
-                StatEntry::File("b.txt".into(), 14848514),
-                StatEntry::File("c.dat".into(), 8504156),
+                StatEntry::File("b.txt".into(), 14_848_514),
+                StatEntry::File("c.dat".into(), 8_504_156),
                 StatEntry::Directory("d".into()),
             ]),
             Command::Jump(Path("a".into())),
@@ -741,16 +741,16 @@ $ ls
             Command::Jump(Path("..".into())),
             Command::Jump(Path("d".into())),
             Command::List(vec![
-                StatEntry::File("j".into(), 4060174),
-                StatEntry::File("d.log".into(), 8033020),
-                StatEntry::File("d.ext".into(), 5626152),
-                StatEntry::File("k".into(), 7214296),
+                StatEntry::File("j".into(), 4_060_174),
+                StatEntry::File("d.log".into(), 8_033_020),
+                StatEntry::File("d.ext".into(), 5_626_152),
+                StatEntry::File("k".into(), 7_214_296),
             ]),
         ];
 
         let built = input.into_iter().collect::<FileSystem>();
 
-        let expected = r#"- / (dir)
+        let expected = r"- / (dir)
   - a (dir)
     - e (dir)
       - i (file, size=584)
@@ -764,9 +764,9 @@ $ ls
     - d.log (file, size=8033020)
     - j (file, size=4060174)
     - k (file, size=7214296)
-"#;
+";
 
-        assert_eq!(format!("{}", built), expected);
+        assert_eq!(format!("{built}"), expected);
     }
 
     #[test]
@@ -775,8 +775,8 @@ $ ls
             Command::Jump(Path("/".into())),
             Command::List(vec![
                 StatEntry::Directory("a".into()),
-                StatEntry::File("b.txt".into(), 14848514),
-                StatEntry::File("c.dat".into(), 8504156),
+                StatEntry::File("b.txt".into(), 14_848_514),
+                StatEntry::File("c.dat".into(), 8_504_156),
                 StatEntry::Directory("d".into()),
             ]),
             Command::Jump(Path("a".into())),
@@ -792,10 +792,10 @@ $ ls
             Command::Jump(Path("..".into())),
             Command::Jump(Path("d".into())),
             Command::List(vec![
-                StatEntry::File("j".into(), 4060174),
-                StatEntry::File("d.log".into(), 8033020),
-                StatEntry::File("d.ext".into(), 5626152),
-                StatEntry::File("k".into(), 7214296),
+                StatEntry::File("j".into(), 4_060_174),
+                StatEntry::File("d.log".into(), 8_033_020),
+                StatEntry::File("d.ext".into(), 5_626_152),
+                StatEntry::File("k".into(), 7_214_296),
             ]),
         ];
 
@@ -811,8 +811,8 @@ $ ls
             Command::Jump(Path("/".into())),
             Command::List(vec![
                 StatEntry::Directory("a".into()),
-                StatEntry::File("b.txt".into(), 14848514),
-                StatEntry::File("c.dat".into(), 8504156),
+                StatEntry::File("b.txt".into(), 14_848_514),
+                StatEntry::File("c.dat".into(), 8_504_156),
                 StatEntry::Directory("d".into()),
             ]),
             Command::Jump(Path("a".into())),
@@ -828,10 +828,10 @@ $ ls
             Command::Jump(Path("..".into())),
             Command::Jump(Path("d".into())),
             Command::List(vec![
-                StatEntry::File("j".into(), 4060174),
-                StatEntry::File("d.log".into(), 8033020),
-                StatEntry::File("d.ext".into(), 5626152),
-                StatEntry::File("k".into(), 7214296),
+                StatEntry::File("j".into(), 4_060_174),
+                StatEntry::File("d.log".into(), 8_033_020),
+                StatEntry::File("d.ext".into(), 5_626_152),
+                StatEntry::File("k".into(), 7_214_296),
             ]),
         ];
 
