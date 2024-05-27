@@ -22,10 +22,12 @@ where
     }
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn part_01(_reader: Option<impl BufRead>) {
     find_base(|result| result[0..2] == [0, 0] && ((result[2] & 0xF0) == 0));
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn part_02(_reader: Option<impl BufRead>) {
     find_base(|result| result[0..3] == [0, 0, 0]);
 }

@@ -68,10 +68,12 @@ fn next_valid_password(pass: &str) -> String {
     }
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn part_01(_reader: Option<impl BufRead>) {
     println!("{}", next_valid_password("hepxcrrq"));
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn part_02(_reader: Option<impl BufRead>) {
     println!("{}", next_valid_password("hepxcrrq"));
 }

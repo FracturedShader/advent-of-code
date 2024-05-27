@@ -24,6 +24,7 @@ fn look_and_say(seq: &str) -> String {
     res
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn part_01(_reader: Option<impl BufRead>) {
     let mut data = "3113322113".to_string();
 
@@ -34,6 +35,7 @@ pub fn part_01(_reader: Option<impl BufRead>) {
     println!("{}", data.len());
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn part_02(_reader: Option<impl BufRead>) {
     let mut data = "3113322113".to_string();
 
