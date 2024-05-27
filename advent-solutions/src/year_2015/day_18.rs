@@ -91,12 +91,17 @@ impl World {
                 let living_neighbors = idxs
                     .iter()
                     .filter_map(|&(ri, rj)| {
-                        src.get(usize::try_from(i + ri).expect("neighbor should map to usize"))
-                            .and_then(|sr| {
-                                sr.get(
-                                    usize::try_from(j + rj).expect("neighbor should map to usize"),
-                                )
-                            })
+                        let nr = i + ri;
+                        let nc = j + rj;
+
+                        if nr == -1 || nc == -1 {
+                            None
+                        } else {
+                            let nr = usize::try_from(i + ri).expect("neighbor should map to usize");
+                            let nc = usize::try_from(j + rj).expect("neighbor should map to usize");
+
+                            src.get(nr).and_then(|sr| sr.get(nc))
+                        }
                     })
                     .map(|&b| i32::from(b))
                     .sum::<i32>();
