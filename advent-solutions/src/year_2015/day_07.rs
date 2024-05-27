@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self, Display};
 use std::{collections::HashMap, error::Error, io::BufRead};
 
 enum Token {
@@ -27,10 +27,10 @@ impl Token {
     }
 }
 
-impl ToString for Token {
-    fn to_string(&self) -> String {
+impl Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Token::Literal(s) | Token::Ident(s) | Token::Op(s) => s.clone(),
+            Token::Literal(s) | Token::Ident(s) | Token::Op(s) => f.write_str(s),
         }
     }
 }

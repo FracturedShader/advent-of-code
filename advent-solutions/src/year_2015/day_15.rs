@@ -104,7 +104,7 @@ fn highest_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>, i64) 
 
         if total > best_total {
             best_total = total;
-            best_candidate = c.clone();
+            best_candidate.clone_from(&c);
 
             add_valid_cases(&c, len, &mut candidates);
         }
@@ -144,7 +144,7 @@ fn highest_500cal_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>
 
             if calories == 500 {
                 best_total = total;
-                best_candidate = c.clone();
+                best_candidate.clone_from(&c);
             }
 
             add_valid_cases(&c, num_ingredients, &mut candidates);

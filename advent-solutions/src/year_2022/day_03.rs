@@ -29,10 +29,6 @@ impl TryFrom<u8> for Item {
     }
 }
 
-#[derive(Error, Copy, Clone, Debug, PartialEq, Eq)]
-#[error("Number passed not in the range 0..52")]
-struct ItemRangeError();
-
 /// Essentially a compact hash set of an item as the range of possible item values allows perfect
 /// hashing in the bits of a `u64`
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -47,10 +43,6 @@ impl ItemSet {
         ItemSet(self.0 | other.0)
     }
 }
-
-#[derive(Error, Copy, Clone, Debug, PartialEq, Eq)]
-#[error("Number passed has value greater than 1 << 51")]
-struct SetRangeError();
 
 /// Essentially hash an `Item` into an `ItemSet`
 impl From<Item> for ItemSet {
@@ -103,7 +95,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let priority_sum = reader
         .expect("This problem requires data input")
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .filter_map(|l| {
             let bytes = l.bytes();
             let len = bytes.len();
@@ -129,7 +121,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
     let priority_sum = reader
         .expect("This problem requires data input")
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .filter_map(|l| {
             let bytes = l.bytes();
             let len = bytes.len();

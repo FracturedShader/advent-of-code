@@ -95,28 +95,24 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let contain_count: u32 = reader
         .expect("data should be available for this problem")
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .range_pairs()
         .map(|(l, r)| u32::from(l.contains_range(&r) || r.contains_range(&l)))
         .sum();
 
-    println!(
-        "Number of assignment pairs where one fully contains the other: {contain_count}"
-    );
+    println!("Number of assignment pairs where one fully contains the other: {contain_count}");
 }
 
 pub fn part_02(reader: Option<impl BufRead>) {
     let overlap_count: u32 = reader
         .expect("data should be available for this problem")
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .range_pairs()
         .map(|(l, r)| u32::from(l.overlaps(&r)))
         .sum();
 
-    println!(
-        "Number of assignment pairs where one overlaps the other: {overlap_count}"
-    );
+    println!("Number of assignment pairs where one overlaps the other: {overlap_count}");
 }
 
 #[cfg(test)]

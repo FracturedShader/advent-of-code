@@ -133,7 +133,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let total_score = reader
         .expect("This problem requires data input")
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .map(|l| {
             let mut hands = l.bytes().filter_map(|b| b.try_into().ok());
 
@@ -151,7 +151,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
     let total_score = reader
         .expect("This problem requires data input")
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .map(|l| {
             let mut parts = l.split(' ').filter_map(|c| c.as_bytes().first()).copied();
 
@@ -205,12 +205,14 @@ C Z";
 
     #[test]
     fn compete_hands() {
-        let hands = [HandShape::Rock,
+        let hands = [
+            HandShape::Rock,
             HandShape::Paper,
             HandShape::Paper,
             HandShape::Rock,
             HandShape::Scissors,
-            HandShape::Scissors];
+            HandShape::Scissors,
+        ];
 
         let outcomes = hands
             .chunks_exact(2)
@@ -225,12 +227,14 @@ C Z";
 
     #[test]
     fn score_hands() {
-        let hands = [HandShape::Rock,
+        let hands = [
+            HandShape::Rock,
             HandShape::Paper,
             HandShape::Paper,
             HandShape::Rock,
             HandShape::Scissors,
-            HandShape::Scissors];
+            HandShape::Scissors,
+        ];
 
         let outcomes = [RoundOutcome::Win, RoundOutcome::Lose, RoundOutcome::Draw];
 
@@ -275,9 +279,11 @@ C Z";
 
     #[test]
     fn score_mixed() {
-        let rounds = [(HandShape::Rock, RoundOutcome::Draw),
+        let rounds = [
+            (HandShape::Rock, RoundOutcome::Draw),
             (HandShape::Paper, RoundOutcome::Lose),
-            (HandShape::Scissors, RoundOutcome::Win)];
+            (HandShape::Scissors, RoundOutcome::Win),
+        ];
 
         let scores = rounds
             .iter()

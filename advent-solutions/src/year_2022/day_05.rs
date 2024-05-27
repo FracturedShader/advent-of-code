@@ -112,7 +112,10 @@ impl Stacks {
     fn apply_move_9001(&mut self, m: &StackMove) {
         let from_len = self.0[m.from_stack].len();
 
-        assert!(m.count <= from_len, "Connot move more items than the stack contains");
+        assert!(
+            m.count <= from_len,
+            "Connot move more items than the stack contains"
+        );
 
         let split_point = from_len - m.count;
         let old_len = self.0[m.to_stack].len();
@@ -123,8 +126,8 @@ impl Stacks {
         // to conatin the requested count, and destination has required space set aside
         unsafe {
             std::ptr::copy_nonoverlapping(
-                &self.0[m.from_stack][split_point] as _,
-                &mut self.0[m.to_stack][old_len] as _,
+                std::ptr::from_ref(&self.0[m.from_stack][split_point]),
+                std::ptr::from_mut(&mut self.0[m.to_stack][old_len]),
                 m.count,
             );
 
@@ -142,7 +145,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
     let mut lines = reader
         .expect("data should be available for this problem")
         .lines()
-        .flatten();
+        .map_while(Result::ok);
 
     let mut stacks = Stacks::from_lines(&mut lines);
 
@@ -163,7 +166,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
     let mut lines = reader
         .expect("data should be available for this problem")
         .lines()
-        .flatten();
+        .map_while(Result::ok);
 
     let mut stacks = Stacks::from_lines(&mut lines);
 

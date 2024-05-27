@@ -90,7 +90,7 @@ fn _part_01_streaming(reader: impl BufRead) -> i32 {
     let mut highest = 0;
     let mut current = 0;
 
-    for l in reader.lines().flatten() {
+    for l in reader.lines().map_while(Result::ok) {
         if l.is_empty() {
             if current > highest {
                 highest = current;
@@ -131,7 +131,7 @@ fn _part_02_streaming(reader: impl BufRead) -> i32 {
 
     let mut current = 0;
 
-    for l in reader.lines().flatten() {
+    for l in reader.lines().map_while(Result::ok) {
         if l.is_empty() {
             try_insert(current);
 

@@ -556,7 +556,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
 
     let fs = reader
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .map(|l| {
             l.parse::<TerminalLine>()
                 .expect("all input lines should be terminal lines")
@@ -577,7 +577,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
 
     let fs = reader
         .lines()
-        .flatten()
+        .map_while(Result::ok)
         .map(|l| {
             l.parse::<TerminalLine>()
                 .expect("all input lines should be terminal lines")

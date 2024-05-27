@@ -4,3 +4,4 @@ members = [
     "advent-solutions",
     "advent-macros"
 ]
+resolver = "2"
