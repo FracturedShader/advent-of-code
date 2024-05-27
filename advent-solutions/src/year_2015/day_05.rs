@@ -75,7 +75,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
 }
 
 #[cfg(test)]
-mod tests {
+mod test {
     use super::{string_is_nice, string_is_nicer};
 
     #[test]

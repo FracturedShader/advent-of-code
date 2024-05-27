@@ -184,7 +184,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
 }
 
 #[cfg(test)]
-mod tests {
+mod test {
     use super::*;
 
     #[test]
