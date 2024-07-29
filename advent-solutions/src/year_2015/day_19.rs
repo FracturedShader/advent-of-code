@@ -105,7 +105,7 @@ impl ReplacementDFA {
     /// # Guaranteees
     ///  - Non-terminal transitions point to another `HashMap` of transitions.
     ///  - Terminal states' `Range<usize>` map to a slice of the collapsed set of replacement
-    ///  strings.
+    ///    strings.
     fn build_dynamic_states(
         source: HashMap<String, Vec<String>>,
     ) -> (Vec<String>, Vec<HashMap<u64, Transition>>) {
@@ -170,7 +170,7 @@ impl ReplacementDFA {
     ///  - Non-terminal transitions point to a `Transition::Gate(mask)` via an index.
     ///  - There are exactly `mask.count_ones()` transitions after a `Transation::Gate(mask)`.
     ///  - All transitions after a `Transition::Gate(mask)` are ordered based on flag. The
-    ///  appropriate transition can be located via `state_index + ((flag - 1) & mask).count_ones()`.
+    ///    appropriate transition can be located via `state_index + ((flag - 1) & mask).count_ones()`.
     fn collapse_dynamic_states(dynamic_states: Vec<HashMap<u64, Transition>>) -> Vec<Transition> {
         // Determine offsets so every state has room for a gate plus all transitions
         let mut offset = 0;
