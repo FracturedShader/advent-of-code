@@ -23,7 +23,7 @@ fn presents_received_inf(house: u32) -> u64 {
     sum * 10
 }
 
-/// Determine howe many presents a house would receive if the elves only go to 50 houses.
+/// Determine how many presents a house would receive if the elves only go to 50 houses.
 fn presents_received_limited(house: u32) -> u64 {
     #[allow(clippy::cast_possible_truncation)]
     #[allow(clippy::cast_sign_loss)]
@@ -51,8 +51,8 @@ fn presents_received_limited(house: u32) -> u64 {
     sum * 11
 }
 
-/// Find the first house, starting at `start_point` and checking every `increment` house, where
-/// `present_count >= threshold`. Record the value in `first_house` if it's the better option.
+/// Find the first house, starting at `start_point` and checking every `increment` house. Where
+/// `present_count >= threshold`, record the value in `first_house` if it's the better option.
 ///
 /// **Exit conditions**:
 /// - The thread finds an answer and updates `first_house`
