@@ -61,10 +61,10 @@ fn find_best_house<F>(
     start_point: u32,
     increment: u32,
     threshold: u64,
-    present_count: &'static F,
+    present_count: &F,
     first_house: &AtomicU32,
 ) where
-    F: Fn(u32) -> u64 + Sync + 'static,
+    F: Fn(u32) -> u64 + Sync,
 {
     use std::sync::atomic::Ordering;
 
@@ -111,9 +111,9 @@ fn find_best_house<F>(
 /// Uses multiple threads to find the first number where `present_count` returns a value greater
 /// than `threshold`. Threads leap-frog one another and atomically coordinate to all stop once the
 /// best answer has been found.
-fn parallel_first<F>(present_count: &'static F, threshold: u64) -> u32
+fn parallel_first<F>(present_count: &F, threshold: u64) -> u32
 where
-    F: Fn(u32) -> u64 + Sync + 'static,
+    F: Fn(u32) -> u64 + Sync,
 {
     let num_threads = if let Ok(nt) = std::thread::available_parallelism() {
         nt.get()
