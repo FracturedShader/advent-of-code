@@ -16,7 +16,7 @@ fn increment_password(pass: &mut [u8]) {
 
 fn replace_invalid(pass: &mut [u8]) {
     const A: u8 = b'a';
-    const INVALID: &[u8] = &[b'i', b'l', b'o'];
+    const INVALID: &[u8] = b"ilo";
 
     let mut it = pass.iter_mut();
 

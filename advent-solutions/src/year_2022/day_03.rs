@@ -71,7 +71,7 @@ impl TryFrom<ItemSet> for Item {
     type Error = anyhow::Error;
 
     fn try_from(value: ItemSet) -> Result<Self, Self::Error> {
-        if value.0.count_ones() == 1 {
+        if value.0.is_power_of_two() {
             Ok(Item((value.0 - 1).count_ones()))
         } else {
             Err(SetNotSingleItemError().into())

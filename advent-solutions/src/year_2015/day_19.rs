@@ -281,7 +281,7 @@ impl<'rules, 'segment> DFAPermuter<'rules, 'segment> {
     }
 }
 
-impl<'rules, 'segment> Iterator for DFAPermuter<'rules, 'segment> {
+impl Iterator for DFAPermuter<'_, '_> {
     type Item = String;
 
     fn next(&mut self) -> Option<Self::Item> {
