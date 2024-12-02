@@ -11,19 +11,15 @@ fn parse_line(input: &str) -> IResult<&str, (i32, i32)> {
 }
 
 fn stream_input(reader: impl BufRead) -> impl Iterator<Item = (i32, i32)> {
-    reader.lines().filter_map(|r| {
-        if let Ok(line) = r {
-            if line.is_empty() {
-                None
-            } else {
-                Some(
-                    parse_line(&line)
-                        .expect("lines should be pairs of numbers separated by whitespace")
-                        .1,
-                )
-            }
-        } else {
+    reader.lines().map_while(Result::ok).filter_map(|l| {
+        if l.is_empty() {
             None
+        } else {
+            Some(
+                parse_line(&l)
+                    .expect("lines should be pairs of numbers separated by whitespace")
+                    .1,
+            )
         }
     })
 }
