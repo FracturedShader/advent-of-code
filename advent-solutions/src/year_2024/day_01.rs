@@ -1,19 +1,30 @@
 use std::{collections::HashMap, io::BufRead};
 
+use nom::{character, sequence, IResult};
+
+fn parse_line(input: &str) -> IResult<&str, (i32, i32)> {
+    sequence::separated_pair(
+        character::complete::i32,
+        character::complete::space1,
+        character::complete::i32,
+    )(input)
+}
+
 fn stream_input(reader: impl BufRead) -> impl Iterator<Item = (i32, i32)> {
     reader.lines().filter_map(|r| {
-        r.ok().map(|l| {
-            let mut pieces = l.split(' ').filter_map(|p| p.parse::<i32>().ok());
-
-            (
-                pieces
-                    .next()
-                    .expect("lines should have two numbers separated by spaces"),
-                pieces
-                    .next()
-                    .expect("lines should have two numbers separated by spaces"),
-            )
-        })
+        if let Ok(line) = r {
+            if line.is_empty() {
+                None
+            } else {
+                Some(
+                    parse_line(&line)
+                        .expect("lines should be pairs of numbers separated by whitespace")
+                        .1,
+                )
+            }
+        } else {
+            None
+        }
     })
 }
 
