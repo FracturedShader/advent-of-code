@@ -241,6 +241,10 @@ where
     }
 }
 
+/// Part 1 approach:
+/// 1. Use a custom `BufRead` consumer and `Nom` to extract all valid "mul(`i32`, `i32`)"
+///    instructions as pairs of numbers
+/// 2. Sum the multiples of the extracted numbers
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
     let mut reader = reader.expect("2024-03.txt should exsist in the data directory");
@@ -254,6 +258,13 @@ pub fn part_01(reader: Option<impl BufRead>) {
     println!("Sum of multiplications: {mul_sum}");
 }
 
+/// Part 2 approach:
+/// 1. Use a custom `BufRead` consumer and `Nom` to extract all unfilterd "mul(`i32`, `i32`)"
+///    instructions by:
+///     1. Grabbing chunks from `BufRead` by searching for ')'
+///     2. Skipping irrelevant characters until a valid `Op` is found (if any)
+///     3. Honor the "do"/"don't" operations while moving forward to filter out "mul" instructions
+/// 2. Sum the multiples of the extracted numbers
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
     let mut reader = reader.expect("2024-03.txt should exsist in the data directory");

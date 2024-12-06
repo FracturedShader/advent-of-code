@@ -24,6 +24,10 @@ fn stream_input(reader: impl BufRead) -> impl Iterator<Item = (i32, i32)> {
     })
 }
 
+/// Process for Part 1 is:
+/// 1. Split the incoming stream into two `Vec`s of numbers
+/// 2. Sort each `Vec` independently
+/// 3. Walk both `Vec`s and sum their absolute differences
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
     let (mut left, mut right): (Vec<_>, Vec<_>) =
@@ -41,6 +45,10 @@ pub fn part_01(reader: Option<impl BufRead>) {
     println!("Sum of differences: {difference_sum}");
 }
 
+/// Process for Part 2 is:
+/// 1. Split the incoming stream into pairs of numbers, putting the left in a `Vec` and the right in
+///    a `HashMap` to track how many times a number is seen
+/// 2. Walk the `Vec` and multiply the value by what's in the `HashMap` for it (or 0)
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
     let mut left = Vec::new();

@@ -82,6 +82,11 @@ fn is_gradient_partially_safe(values: &[i32]) -> bool {
         || is_gradient_safe_split(values[0], &values[2..])
 }
 
+/// Part 1 approach:
+/// 1. For each line in the input
+///     1. Convert the line to a list of numbers
+///     2. Check that the list is strictly increasing/decreasing with allowable differences
+/// 2. Count the number of lines that pass the checks
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
     let num_safe = reader
@@ -100,6 +105,13 @@ pub fn part_01(reader: Option<impl BufRead>) {
     println!("Safe reports: {num_safe}");
 }
 
+/// Part 1 approach:
+/// 1. For each line in the input
+///     1. Convert the line to a list of numbers
+///     2. Allow one item from the list to be removed (cases: first, second, or other as gradient
+///        expectation is calculated from first two elements) when checking that it is strictly
+///        increasing/decreasing with allowable differences
+/// 2. Count the number of lines that pass the checks
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
     let num_safe = reader

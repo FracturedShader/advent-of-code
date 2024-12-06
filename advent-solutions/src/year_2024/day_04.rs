@@ -143,15 +143,8 @@ fn x_mas_opposite(byte: u8) -> Option<u8> {
 }
 
 /// Is this cell the top-left corner of an "X-MAS" box? Limits scanning to be memory-forward and
-/// this is only intended to be used when scanning the whole `grid`.
+/// this is only intended to be used when scanning the whole `grid` minus padding for the box.
 fn is_x_mas_cell(grid: &ByteGrid2D, x: usize, y: usize) -> bool {
-    let room_after = (grid.width - x) > 2;
-    let room_below = (grid.height - y) > 2;
-
-    if !room_after || !room_below {
-        return false;
-    }
-
     if let Some(o1) = x_mas_opposite(*grid.get(x, y)) {
         if let Some(o2) = x_mas_opposite(*grid.get(x + 2, y)) {
             return *grid.get(x + 1, y + 1) == b'A'
@@ -167,8 +160,8 @@ fn is_x_mas_cell(grid: &ByteGrid2D, x: usize, y: usize) -> bool {
 fn count_x_mas_grid(grid: &ByteGrid2D) -> u32 {
     let mut count = 0;
 
-    for row in 0..grid.height {
-        for col in 0..grid.width {
+    for row in 0..(grid.height - 2) {
+        for col in 0..(grid.width - 2) {
             count += u32::from(is_x_mas_cell(grid, col, row));
         }
     }
@@ -176,6 +169,14 @@ fn count_x_mas_grid(grid: &ByteGrid2D) -> u32 {
     count
 }
 
+/// Part 1 approach:
+/// 1. Read the entire file in as bytes
+/// 2. Treat the raw bytes as a 2D grid using a wrapper struct (helps with ignoring LF/CRLF)
+/// 3. Iterate through all cells in memory order considering them as either the start or end of
+///    "XMAS" in exactly half the supported directions due to symmetry
+///     - Since we are considering both the forward and backward options we can limit the search
+///       for the rest to only look forward in memory (forward along same row or in following rows)
+/// 4. Sum up the number of matches found for each cell in the table
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
     let mut buf = Vec::with_capacity(20 * 1024);
@@ -191,6 +192,15 @@ pub fn part_01(reader: Option<impl BufRead>) {
     println!("XMAS appearances: {match_count}");
 }
 
+/// Part 2 approach:
+/// 1. Read the entire file in as bytes
+/// 2. Treat the raw bytes as a 2D grid using a wrapper struct (helps with ignoring LF/CRLF)
+/// 3. Iterate through all cells in memory order (minus space for the box) considering them as
+///    potentially the top-left corner of the "X-MAS" box
+///     - Every box must have a top-left corner
+///     - Every box has an 'A' in the middle
+///     - Just need to track what the opposites of the top two corners should be and match
+/// 4. Count up the number of cells that are the top-left corner of an "X-MAS" box
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
     let mut buf = Vec::with_capacity(20 * 1024);
