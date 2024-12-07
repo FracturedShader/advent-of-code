@@ -1,55 +1,6 @@
 use std::io::BufRead;
 
-/// Treats a `Vec<u8>` as a 2D grid so long as the data can be treated as a filled rectangle.
-#[derive(Debug, Clone)]
-struct ByteGrid2D {
-    width: usize,
-    height: usize,
-    stride: usize,
-    data: Vec<u8>,
-}
-
-impl ByteGrid2D {
-    /// Try to construct an 2D grid from newline-delimited data (CRLF aware). Final newline not
-    /// required.
-    /// Errors if the data is not rectangular.
-    pub fn try_from_file_data(data: Vec<u8>) -> Result<Self, &'static str> {
-        let (width, stride) = {
-            if let Some(newline_pos) = data.iter().position(|b| *b == b'\n') {
-                if data[newline_pos - 1] == b'\r' {
-                    (newline_pos - 1, newline_pos + 1)
-                } else {
-                    (newline_pos, newline_pos + 1)
-                }
-            } else {
-                (data.len(), data.len())
-            }
-        };
-
-        let height = data.len().div_ceil(stride);
-
-        if (height * stride) - data.len() <= (stride - width) {
-            Ok(Self {
-                width,
-                height,
-                stride,
-                data,
-            })
-        } else {
-            Err("Input is not a rectangular grid")
-        }
-    }
-
-    pub fn get(&self, x: usize, y: usize) -> &u8 {
-        &self.get_row(y)[x]
-    }
-
-    pub fn get_row(&self, y: usize) -> &[u8] {
-        let idx = y * self.stride;
-
-        &self.data[idx..(idx + self.width)]
-    }
-}
+use crate::common::ByteGrid2D;
 
 /// Starting from `(x + dx, y + dy)`, is the entire `pattern` in the `grid` when moving by
 /// `(dx, dy)` per `u8`?
@@ -95,8 +46,8 @@ fn count_xmas_cell(grid: &ByteGrid2D, x: usize, y: usize) -> u32 {
     let needed = rest.len();
 
     let room_before = x >= needed;
-    let room_after = (grid.width - x) > needed;
-    let room_below = (grid.height - y) > needed;
+    let room_after = (grid.width() - x) > needed;
+    let room_below = (grid.height() - y) > needed;
 
     let mut count = 0;
 
@@ -124,8 +75,8 @@ fn count_xmas_cell(grid: &ByteGrid2D, x: usize, y: usize) -> u32 {
 fn count_xmas_grid(grid: &ByteGrid2D) -> u32 {
     let mut count = 0;
 
-    for row in 0..grid.height {
-        for col in 0..grid.width {
+    for row in 0..grid.height() {
+        for col in 0..grid.width() {
             count += count_xmas_cell(grid, col, row);
         }
     }
@@ -160,8 +111,8 @@ fn is_x_mas_cell(grid: &ByteGrid2D, x: usize, y: usize) -> bool {
 fn count_x_mas_grid(grid: &ByteGrid2D) -> u32 {
     let mut count = 0;
 
-    for row in 0..(grid.height - 2) {
-        for col in 0..(grid.width - 2) {
+    for row in 0..(grid.height() - 2) {
+        for col in 0..(grid.width() - 2) {
             count += u32::from(is_x_mas_cell(grid, col, row));
         }
     }
@@ -220,8 +171,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
 mod test {
     use super::*;
 
-    #[test]
-    fn word_search() {
+    fn parsed_test_input() -> ByteGrid2D {
         let input = r"MMMSXXMASM
 MSAMXMSMSA
 AMXSXMAAMM
@@ -233,10 +183,20 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
-        let grid = ByteGrid2D::try_from_file_data(input.bytes().collect()).unwrap();
+        ByteGrid2D::try_from_file_data(input.bytes().collect()).unwrap()
+    }
 
-        assert_eq!(grid.width, 10);
-        assert_eq!(grid.height, 10);
+    #[test]
+    fn parse_input() {
+        let grid = parsed_test_input();
+
+        assert_eq!(grid.width(), 10);
+        assert_eq!(grid.height(), 10);
+    }
+
+    #[test]
+    fn word_search() {
+        let grid = parsed_test_input();
 
         let match_count = count_xmas_grid(&grid);
 
@@ -245,21 +205,7 @@ MXMXAXMASX";
 
     #[test]
     fn block_search() {
-        let input = r"MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
-XMASAMXAMM
-XXAMMXXAMA
-SMSMSASXSS
-SAXAMASAAA
-MAMMMXMMMM
-MXMXAXMASX";
-
-        let grid = ByteGrid2D::try_from_file_data(input.bytes().collect()).unwrap();
-
-        assert_eq!(grid.width, 10);
-        assert_eq!(grid.height, 10);
+        let grid = parsed_test_input();
 
         assert!(is_x_mas_cell(&grid, 1, 0));
 
