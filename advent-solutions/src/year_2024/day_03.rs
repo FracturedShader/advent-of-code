@@ -97,21 +97,21 @@ where
 /// All operations/instructions supported by the parser.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Op {
-    Do(),
-    Dont(),
+    Do,
+    Dont,
     Mul(i32, i32),
 }
 
 fn parse_do_op(input: &[u8]) -> IResult<&[u8], Op> {
     let (rest, _) = bytes::complete::tag("do()")(input)?;
 
-    Ok((rest, Op::Do()))
+    Ok((rest, Op::Do))
 }
 
 fn parse_dont_op(input: &[u8]) -> IResult<&[u8], Op> {
     let (rest, _) = bytes::complete::tag("don't()")(input)?;
 
-    Ok((rest, Op::Dont()))
+    Ok((rest, Op::Dont))
 }
 
 fn parse_mul_op(input: &[u8]) -> IResult<&[u8], Op> {
@@ -200,10 +200,10 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         for r in self.inner.by_ref() {
             match r {
-                Ok(Op::Do()) => {
+                Ok(Op::Do) => {
                     self.keep = true;
                 }
-                Ok(Op::Dont()) => {
+                Ok(Op::Dont) => {
                     self.keep = false;
                 }
                 Ok(Op::Mul(l, r)) => {
