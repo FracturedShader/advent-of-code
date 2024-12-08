@@ -1,3 +1,3 @@
-mod byte_grid_2d;
+mod grid2;
 
-pub use byte_grid_2d::ByteGrid2D;
+pub use grid2::Grid2;
