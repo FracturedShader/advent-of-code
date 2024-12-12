@@ -48,14 +48,14 @@ impl Op {
             Op::Mul => lhs * rhs,
             Op::Cat => {
                 let mut val = rhs;
-                let mut res = lhs;
+                let mut lhs = lhs;
 
                 while val != 0 {
-                    res *= 10;
+                    lhs *= 10;
                     val /= 10;
                 }
 
-                res + rhs
+                lhs + rhs
             }
         }
     }

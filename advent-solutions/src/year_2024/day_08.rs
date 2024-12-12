@@ -22,7 +22,7 @@ impl AntennaMap {
     fn count_unique_antinodes(&self) -> usize {
         let mut node_positions = HashSet::new();
 
-        for (_, antennas) in &self.groupings {
+        for antennas in self.groupings.values() {
             let n = antennas.len();
 
             for (i, p0) in antennas.iter().take(n - 1).enumerate() {
@@ -49,7 +49,7 @@ impl AntennaMap {
     fn count_unique_harmonic_antinodes(&self) -> usize {
         let mut node_positions = HashSet::new();
 
-        for (_, antennas) in &self.groupings {
+        for antennas in self.groupings.values() {
             let n = antennas.len();
 
             if n == 1 {
@@ -117,7 +117,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
 
     let antinode_count = map.count_unique_antinodes();
 
-    println!("Unique antinodes: {antinode_count}")
+    println!("Unique antinodes: {antinode_count}");
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -128,7 +128,7 @@ pub fn part_02(reader: Option<impl BufRead>) {
 
     let antinode_count = map.count_unique_harmonic_antinodes();
 
-    println!("Unique harmonic antinodes: {antinode_count}")
+    println!("Unique harmonic antinodes: {antinode_count}");
 }
 
 #[cfg(test)]
