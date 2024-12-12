@@ -1,3 +1,3 @@
 use advent_macros::generate_year;
 
-generate_year!(2024 10);
+generate_year!(2024 11);
