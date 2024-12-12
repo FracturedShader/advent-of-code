@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use glam::{IVec2, UVec2};
 
 /// Treats a `Vec<u8>` as a 2D grid, so long as the data can be treated as a filled rectangle.
@@ -150,6 +152,17 @@ impl Grid2<u8> {
         } else {
             Err("Input is not a rectangular grid")
         }
+    }
+
+    pub fn try_from_file<R>(mut reader: R) -> Result<Self, &'static str>
+    where
+        R: Read,
+    {
+        let mut buf = Vec::new();
+
+        let _ = reader.read_to_end(&mut buf);
+
+        Self::try_from_file_data(buf)
     }
 }
 

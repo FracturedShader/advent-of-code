@@ -129,14 +129,9 @@ fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
 /// 4. Sum up the number of matches found for each cell in the table
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
-    let mut buf = Vec::with_capacity(20 * 1024);
-
-    let _ = reader
-        .expect("2024-04.txt should exist in the data directory")
-        .read_to_end(&mut buf)
-        .unwrap();
-
-    let grid = Grid2::try_from_file_data(buf).unwrap();
+    let grid =
+        Grid2::try_from_file(reader.expect("2024-04.txt should exist in the data directory"))
+            .unwrap();
     let match_count = count_xmas_grid(&grid);
 
     println!("XMAS appearances: {match_count}");
@@ -153,14 +148,9 @@ pub fn part_01(reader: Option<impl BufRead>) {
 /// 4. Count up the number of cells that are the top-left corner of an "X-MAS" box
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut buf = Vec::with_capacity(20 * 1024);
-
-    let _ = reader
-        .expect("2024-04.txt should exist in the data directory")
-        .read_to_end(&mut buf)
-        .unwrap();
-
-    let grid = Grid2::try_from_file_data(buf).unwrap();
+    let grid =
+        Grid2::try_from_file(reader.expect("2024-04.txt should exist in the data directory"))
+            .unwrap();
     let match_count = count_x_mas_grid(&grid);
 
     println!("X-MAS appearances: {match_count}");
@@ -182,7 +172,7 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_file(input.as_bytes()).unwrap()
     }
 
     #[test]

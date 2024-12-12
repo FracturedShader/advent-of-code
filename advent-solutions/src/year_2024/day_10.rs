@@ -80,13 +80,8 @@ fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (UVec2, usize)> +
 
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
-    let mut buf = Vec::new();
-
-    let _ = reader
-        .expect("2024-10.txt should be in the data folder")
-        .read_to_end(&mut buf);
-
-    let grid = Grid2::try_from_file_data(buf).expect("file should be a topographic map");
+    let grid = Grid2::try_from_file(reader.expect("2024-10.txt should be in the data folder"))
+        .expect("file should be a topographic map");
     let trailhead_scores_sum = trailhead_scores(&grid).map(|t| t.1).sum::<usize>();
 
     println!("Sum of trailhead scores: {trailhead_scores_sum}");
@@ -94,13 +89,8 @@ pub fn part_01(reader: Option<impl BufRead>) {
 
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut buf = Vec::new();
-
-    let _ = reader
-        .expect("2024-10.txt should be in the data folder")
-        .read_to_end(&mut buf);
-
-    let grid = Grid2::try_from_file_data(buf).expect("file should be a topographic map");
+    let grid = Grid2::try_from_file(reader.expect("2024-10.txt should be in the data folder"))
+        .expect("file should be a topographic map");
     let trailhead_ratings_sum = trailhead_ratings(&grid).map(|t| t.1).sum::<usize>();
 
     println!("Sum of trailhead ratings: {trailhead_ratings_sum}");
@@ -122,7 +112,7 @@ mod test {
 01329801
 10456732";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_file(input.as_bytes()).unwrap()
     }
 
     #[test]

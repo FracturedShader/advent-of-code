@@ -319,14 +319,9 @@ fn num_obstruction_loop_options(lab_map: &Grid2<u8>, mut guard: Guard) -> usize 
 
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_01(reader: Option<impl BufRead>) {
-    let mut buf = Vec::with_capacity(20 * 1024);
-
-    let _ = reader
-        .expect("2024-06.txt should exist in the data directory")
-        .read_to_end(&mut buf)
-        .unwrap();
-
-    let lab_map = Grid2::try_from_file_data(buf).expect("problem input should be a valid map");
+    let lab_map =
+        Grid2::try_from_file(reader.expect("2024-06.txt should exist in the data directory"))
+            .expect("problem input should be a valid map");
     let guard = Guard::try_from(&lab_map).expect("input map should have a guard");
 
     let cells_visited = num_cells_patrolled(&lab_map, guard);
@@ -336,14 +331,9 @@ pub fn part_01(reader: Option<impl BufRead>) {
 
 #[allow(clippy::needless_pass_by_value)]
 pub fn part_02(reader: Option<impl BufRead>) {
-    let mut buf = Vec::with_capacity(20 * 1024);
-
-    let _ = reader
-        .expect("2024-06.txt should exist in the data directory")
-        .read_to_end(&mut buf)
-        .unwrap();
-
-    let lab_map = Grid2::try_from_file_data(buf).expect("problem input should be a valid map");
+    let lab_map =
+        Grid2::try_from_file(reader.expect("2024-06.txt should exist in the data directory"))
+            .expect("problem input should be a valid map");
     let guard = Guard::try_from(&lab_map).expect("input map should have a guard");
 
     let loop_options = num_obstruction_loop_options(&lab_map, guard);
@@ -367,7 +357,7 @@ mod test {
 #.........
 ......#...";
 
-        Grid2::try_from_file_data(input.as_bytes().to_vec()).unwrap()
+        Grid2::try_from_file(input.as_bytes()).unwrap()
     }
 
     #[test]
