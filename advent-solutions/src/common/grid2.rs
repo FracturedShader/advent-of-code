@@ -1,4 +1,4 @@
-use glam::UVec2;
+use glam::{IVec2, UVec2};
 
 /// Treats a `Vec<u8>` as a 2D grid, so long as the data can be treated as a filled rectangle.
 /// Increasing `x` and `y` both look further forward in memory, but what that means depends on
@@ -33,6 +33,80 @@ impl<'grid, T> Iterator for Iter2D<'grid, T> {
             Some(self.grid.get(p))
         } else {
             None
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Enumerate2D<'grid, T> {
+    pos: UVec2,
+    grid: &'grid Grid2<T>,
+}
+
+impl<'grid, T> Iterator for Enumerate2D<'grid, T> {
+    type Item = (UVec2, &'grid T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.grid.in_bounds(self.pos) {
+            let p = self.pos;
+
+            self.pos += UVec2::X;
+
+            if self.pos.x >= self.grid.size.x {
+                self.pos.y += self.pos.x / self.grid.size.x;
+                self.pos.x %= self.grid.size.x;
+            }
+
+            Some((p, self.grid.get(p)))
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ValidNeighbors<'grid, const N: usize, T> {
+    i: usize,
+    origin: UVec2,
+    directions: [IVec2; N],
+    grid: &'grid Grid2<T>,
+}
+
+impl<'grid, const N: usize, T> Iterator for ValidNeighbors<'grid, N, T> {
+    type Item = (UVec2, &'grid T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if self.i == N {
+                return None;
+            }
+
+            let dir = self.directions[self.i];
+            self.i += 1;
+
+            let nx = if dir.x.is_negative() {
+                self.origin
+                    .x
+                    .checked_sub(u32::try_from(dir.x.abs()).unwrap())
+            } else {
+                self.origin.x.checked_add(u32::try_from(dir.x).unwrap())
+            };
+
+            let ny = if dir.y.is_negative() {
+                self.origin
+                    .y
+                    .checked_sub(u32::try_from(dir.y.abs()).unwrap())
+            } else {
+                self.origin.y.checked_add(u32::try_from(dir.y).unwrap())
+            };
+
+            if let (Some(x), Some(y)) = (nx, ny) {
+                let p = UVec2::new(x, y);
+
+                if self.grid.in_bounds(p) {
+                    return Some((p, self.grid.get(p)));
+                }
+            }
         }
     }
 }
@@ -80,6 +154,13 @@ impl Grid2<u8> {
 }
 
 impl<T> Grid2<T> {
+    pub fn enumerate(&self) -> Enumerate2D<'_, T> {
+        Enumerate2D {
+            pos: UVec2::ZERO,
+            grid: self,
+        }
+    }
+
     /// Attempts to construct a rectangular 2D grid from a flat `Vec<T>`. Length of `data` must be
     /// exactly divisible by `width` and fit within a `u32`.
     pub fn from_vec(data: Vec<T>, width: u32) -> Option<Self> {
@@ -134,6 +215,33 @@ impl<T> Grid2<T> {
 
     pub fn size(&self) -> UVec2 {
         self.size
+    }
+
+    pub fn valid_neighbors4(&self, p: UVec2) -> ValidNeighbors<'_, 4, T> {
+        ValidNeighbors {
+            i: 0,
+            origin: p,
+            directions: [IVec2::NEG_Y, IVec2::X, IVec2::Y, IVec2::NEG_X],
+            grid: self,
+        }
+    }
+
+    pub fn valid_neighbors8(&self, p: UVec2) -> ValidNeighbors<'_, 8, T> {
+        ValidNeighbors {
+            i: 0,
+            origin: p,
+            directions: [
+                IVec2::NEG_Y,
+                IVec2::new(1, -1),
+                IVec2::X,
+                IVec2::ONE,
+                IVec2::Y,
+                IVec2::new(-1, 1),
+                IVec2::NEG_X,
+                IVec2::NEG_ONE,
+            ],
+            grid: self,
+        }
     }
 }
 
