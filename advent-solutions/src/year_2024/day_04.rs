@@ -1,6 +1,6 @@
 use std::io::BufRead;
 
-use glam::IVec2;
+use glam::{IVec2, UVec2};
 
 use crate::common::Grid2;
 
@@ -32,13 +32,13 @@ fn count_xmas_cell(grid: &Grid2<u8>, p: IVec2) -> u32 {
     };
 
     let rest = &rest[..];
-    let needed = rest.len();
+    let needed = i32::try_from(rest.len()).unwrap();
 
-    let room_before = p.x as usize >= needed;
+    let room_before = (p.x - grid.extent_min().x) >= needed;
     let (room_after, room_below) = {
-        let area = grid.size() - p;
+        let area = grid.extent_max() - p;
 
-        (area.x as usize > needed, area.y as usize > needed)
+        (area.x > needed, area.y > needed)
     };
 
     let mut count = 0;
@@ -66,11 +66,11 @@ fn count_xmas_cell(grid: &Grid2<u8>, p: IVec2) -> u32 {
 /// backwards, up, down, diagonally).
 fn count_xmas_grid(grid: &Grid2<u8>) -> u32 {
     let mut count = 0;
-    let IVec2 { x, y } = grid.size();
+    let (width, height) = (grid.width(), grid.height());
 
-    for row in 0..y {
-        for col in 0..x {
-            count += count_xmas_cell(grid, (row, col).into());
+    for y in 0..height {
+        for x in 0..width {
+            count += count_xmas_cell(grid, UVec2::new(y, x).try_into().unwrap());
         }
     }
 
@@ -103,11 +103,11 @@ fn is_x_mas_cell(grid: &Grid2<u8>, p: IVec2) -> bool {
 /// Counts the number of times "X-MAS" boxes can be found within the grid.
 fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
     let mut count = 0;
-    let IVec2 { x, y } = grid.size();
+    let (width, height) = (grid.width(), grid.height());
 
-    for row in 0..(y - 2) {
-        for col in 0..(x - 2) {
-            count += u32::from(is_x_mas_cell(grid, (col, row).into()));
+    for y in 0..height {
+        for x in 0..width {
+            count += u32::from(is_x_mas_cell(grid, UVec2::new(x, y).try_into().unwrap()));
         }
     }
 

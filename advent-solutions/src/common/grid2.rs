@@ -1,13 +1,14 @@
 use std::io::Read;
 
-use glam::IVec2;
+use glam::{IVec2, UVec2};
 
 /// Treats a `Vec<u8>` as a 2D grid, so long as the data can be treated as a filled rectangle.
 /// Increasing `x` and `y` both look further forward in memory, but what that means depends on
 /// context that this class does not assume.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid2<T> {
-    size: IVec2,
+    min: IVec2,
+    max: IVec2,
     stride: usize,
     data: Vec<T>,
 }
@@ -27,9 +28,9 @@ impl<'grid, T> Iterator for Iter2D<'grid, T> {
 
             self.pos += IVec2::X;
 
-            if self.pos.x >= self.grid.size.x {
-                self.pos.y += self.pos.x / self.grid.size.x;
-                self.pos.x %= self.grid.size.x;
+            if self.pos.x >= self.grid.max.x {
+                self.pos.y += 1;
+                self.pos.x = self.grid.min.x;
             }
 
             Some(self.grid.get(p))
@@ -54,9 +55,9 @@ impl<'grid, T> Iterator for Enumerate2D<'grid, T> {
 
             self.pos += IVec2::X;
 
-            if self.pos.x >= self.grid.size.x {
-                self.pos.y += self.pos.x / self.grid.size.x;
-                self.pos.x %= self.grid.size.x;
+            if self.pos.x >= self.grid.max.x {
+                self.pos.y += 1;
+                self.pos.x = self.grid.min.x;
             }
 
             Some((p, self.grid.get(p)))
@@ -76,6 +77,12 @@ pub enum Direction {
     Southwest,
     West,
     Northwest,
+}
+
+impl Direction {
+    pub fn in_set(self, mask: u8) -> bool {
+        u8::from(self) & mask != 0
+    }
 }
 
 impl From<Direction> for u8 {
@@ -165,14 +172,18 @@ impl Grid2<u8> {
 
         let height = data.len().div_ceil(stride);
 
-        let size = (
+        let max = IVec2::new(
             i32::try_from(width).expect("grid should be less than `i32::MAX` wide"),
             i32::try_from(height).expect("grid should be less than `i32::MAX` tall"),
-        )
-            .into();
+        );
 
         if (height * stride) - data.len() <= (stride - width) {
-            Ok(Self { size, stride, data })
+            Ok(Self {
+                min: IVec2::ZERO,
+                max,
+                stride,
+                data,
+            })
         } else {
             Err("Input is not a rectangular grid")
         }
@@ -198,14 +209,26 @@ impl<T> Grid2<T> {
         }
     }
 
+    pub fn extent_max(&self) -> IVec2 {
+        self.max
+    }
+
+    pub fn extent_min(&self) -> IVec2 {
+        self.min
+    }
+
     /// Attempts to construct a rectangular 2D grid from a flat `Vec<T>`. Length of `data` must be
     /// exactly divisible by `width` and fit within a `i32`.
-    pub fn from_vec(data: Vec<T>, width: i32) -> Option<Self> {
+    pub fn from_vec(data: Vec<T>, width: u32) -> Option<Self> {
         if data.len() % (width as usize) == 0 {
+            let signed_width =
+                i32::try_from(width).expect("grid shoud be less than `i32::MAX` wide");
+
             i32::try_from(data.len() / width as usize)
                 .ok()
                 .map(|height| Self {
-                    size: IVec2::new(width, height),
+                    min: IVec2::ZERO,
+                    max: IVec2::new(signed_width, height),
                     stride: width as usize,
                     data,
                 })
@@ -215,27 +238,35 @@ impl<T> Grid2<T> {
     }
 
     pub fn get(&self, p: IVec2) -> &T {
-        &self.get_row(p.y)[p.x as usize]
+        &self.get_row(p.y)[usize::try_from(p.x - self.min.x).unwrap()]
     }
 
     pub fn get_mut(&mut self, p: IVec2) -> &mut T {
-        &mut self.get_row_mut(p.y)[p.x as usize]
+        let min_x = self.min.x;
+
+        &mut self.get_row_mut(p.y)[usize::try_from(p.x - min_x).unwrap()]
     }
 
     pub fn get_row(&self, y: i32) -> &[T] {
-        let idx = (y as usize) * self.stride;
+        let UVec2 { x: width, .. } = self.size();
+        let idx = usize::try_from(y - self.min.y).unwrap() * self.stride;
 
-        &self.data[idx..(idx + self.size.x as usize)]
+        &self.data[idx..(idx + width as usize)]
     }
 
     pub fn get_row_mut(&mut self, y: i32) -> &mut [T] {
-        let idx = (y as usize) * self.stride;
+        let UVec2 { x: width, .. } = self.size();
+        let idx = usize::try_from(y - self.min.y).unwrap() * self.stride;
 
-        &mut self.data[idx..(idx + self.size.x as usize)]
+        &mut self.data[idx..(idx + width as usize)]
+    }
+
+    pub fn height(&self) -> u32 {
+        self.size().y
     }
 
     pub fn in_bounds(&self, p: IVec2) -> bool {
-        (0..self.size.x).contains(&p.x) && (0..self.size.y).contains(&p.y)
+        (self.min.x..self.max.x).contains(&p.x) && (self.min.y..self.max.y).contains(&p.y)
     }
 
     pub fn inner(&self) -> &[T] {
@@ -250,8 +281,8 @@ impl<T> Grid2<T> {
         *self.get_mut(p) = v;
     }
 
-    pub fn size(&self) -> IVec2 {
-        self.size
+    pub fn size(&self) -> UVec2 {
+        (self.max - self.min).try_into().unwrap()
     }
 
     pub fn valid_neighbors4(&self, p: IVec2) -> ValidNeighbors<'_, 4, T> {
@@ -284,6 +315,10 @@ impl<T> Grid2<T> {
             ],
             grid: self,
         }
+    }
+
+    pub fn width(&self) -> u32 {
+        self.size().x
     }
 }
 
