@@ -1,6 +1,6 @@
 use std::io::BufRead;
 
-use glam::UVec2;
+use glam::IVec2;
 
 use crate::common::Grid2;
 
@@ -15,8 +15,8 @@ enum Facing {
 
 impl Facing {
     /// Takes one step in the current `Facing` direction from `p`.
-    /// Returns `Some(UVec2)` when not over/underflowing `u32`.
-    fn step(self, p: UVec2) -> Option<UVec2> {
+    /// Returns `Some(IVec2)` when not over/underflowing `u32`.
+    fn step(self, p: IVec2) -> Option<IVec2> {
         match self {
             Facing::Up => p.y.checked_sub(1).map(|y| (p.x, y).into()),
             Facing::Right => p.x.checked_add(1).map(|x| (x, p.y).into()),
@@ -97,7 +97,7 @@ impl MapCell {
 /// direction.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct Guard {
-    position: UVec2,
+    position: IVec2,
     facing: Facing,
 }
 

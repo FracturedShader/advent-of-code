@@ -1,20 +1,20 @@
 use std::io::Read;
 
-use glam::{IVec2, UVec2};
+use glam::IVec2;
 
 /// Treats a `Vec<u8>` as a 2D grid, so long as the data can be treated as a filled rectangle.
 /// Increasing `x` and `y` both look further forward in memory, but what that means depends on
 /// context that this class does not assume.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid2<T> {
-    size: UVec2,
+    size: IVec2,
     stride: usize,
     data: Vec<T>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Iter2D<'grid, T> {
-    pos: UVec2,
+    pos: IVec2,
     grid: &'grid Grid2<T>,
 }
 
@@ -25,7 +25,7 @@ impl<'grid, T> Iterator for Iter2D<'grid, T> {
         if self.grid.in_bounds(self.pos) {
             let p = self.pos;
 
-            self.pos += UVec2::X;
+            self.pos += IVec2::X;
 
             if self.pos.x >= self.grid.size.x {
                 self.pos.y += self.pos.x / self.grid.size.x;
@@ -41,18 +41,18 @@ impl<'grid, T> Iterator for Iter2D<'grid, T> {
 
 #[derive(Debug, Clone)]
 pub struct Enumerate2D<'grid, T> {
-    pos: UVec2,
+    pos: IVec2,
     grid: &'grid Grid2<T>,
 }
 
 impl<'grid, T> Iterator for Enumerate2D<'grid, T> {
-    type Item = (UVec2, &'grid T);
+    type Item = (IVec2, &'grid T);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.grid.in_bounds(self.pos) {
             let p = self.pos;
 
-            self.pos += UVec2::X;
+            self.pos += IVec2::X;
 
             if self.pos.x >= self.grid.size.x {
                 self.pos.y += self.pos.x / self.grid.size.x;
@@ -66,16 +66,58 @@ impl<'grid, T> Iterator for Enumerate2D<'grid, T> {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum Direction {
+    North,
+    Northeast,
+    East,
+    Southeast,
+    South,
+    Southwest,
+    West,
+    Northwest,
+}
+
+impl From<Direction> for u8 {
+    fn from(value: Direction) -> Self {
+        match value {
+            Direction::North => 0b0000_0001,
+            Direction::Northeast => 0b0000_0010,
+            Direction::East => 0b0000_0100,
+            Direction::Southeast => 0b0000_1000,
+            Direction::South => 0b0001_0000,
+            Direction::Southwest => 0b0010_0000,
+            Direction::West => 0b0100_0000,
+            Direction::Northwest => 0b1000_0000,
+        }
+    }
+}
+
+impl From<Direction> for IVec2 {
+    fn from(value: Direction) -> Self {
+        match value {
+            Direction::North => IVec2::NEG_Y,
+            Direction::Northeast => IVec2::new(1, -1),
+            Direction::East => IVec2::X,
+            Direction::Southeast => IVec2::ONE,
+            Direction::South => IVec2::Y,
+            Direction::Southwest => IVec2::new(-1, 1),
+            Direction::West => IVec2::NEG_X,
+            Direction::Northwest => IVec2::NEG_ONE,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct ValidNeighbors<'grid, const N: usize, T> {
     i: usize,
-    origin: UVec2,
-    directions: [IVec2; N],
+    origin: IVec2,
+    directions: [Direction; N],
     grid: &'grid Grid2<T>,
 }
 
 impl<'grid, const N: usize, T> Iterator for ValidNeighbors<'grid, N, T> {
-    type Item = (UVec2, &'grid T);
+    type Item = (Direction, (IVec2, &'grid T));
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -84,40 +126,22 @@ impl<'grid, const N: usize, T> Iterator for ValidNeighbors<'grid, N, T> {
             }
 
             let dir = self.directions[self.i];
+            let p = self.origin + IVec2::from(dir);
+
             self.i += 1;
 
-            let nx = if dir.x.is_negative() {
-                self.origin
-                    .x
-                    .checked_sub(u32::try_from(dir.x.abs()).unwrap())
-            } else {
-                self.origin.x.checked_add(u32::try_from(dir.x).unwrap())
-            };
-
-            let ny = if dir.y.is_negative() {
-                self.origin
-                    .y
-                    .checked_sub(u32::try_from(dir.y.abs()).unwrap())
-            } else {
-                self.origin.y.checked_add(u32::try_from(dir.y).unwrap())
-            };
-
-            if let (Some(x), Some(y)) = (nx, ny) {
-                let p = UVec2::new(x, y);
-
-                if self.grid.in_bounds(p) {
-                    return Some((p, self.grid.get(p)));
-                }
+            if self.grid.in_bounds(p) {
+                return Some((dir, (p, self.grid.get(p))));
             }
         }
     }
 }
 
 impl<T> Grid2<T> {
-    fn index_to_coord(&self, index: usize) -> UVec2 {
-        UVec2::new(
-            u32::try_from(index % self.stride).unwrap(),
-            u32::try_from(index / self.stride).unwrap(),
+    fn index_to_coord(&self, index: usize) -> IVec2 {
+        IVec2::new(
+            i32::try_from(index % self.stride).unwrap(),
+            i32::try_from(index / self.stride).unwrap(),
         )
     }
 }
@@ -142,8 +166,8 @@ impl Grid2<u8> {
         let height = data.len().div_ceil(stride);
 
         let size = (
-            u32::try_from(width).expect("grid should be less than `u32::MAX` wide"),
-            u32::try_from(height).expect("grid should be less than `u32::MAX` tall"),
+            i32::try_from(width).expect("grid should be less than `i32::MAX` wide"),
+            i32::try_from(height).expect("grid should be less than `i32::MAX` tall"),
         )
             .into();
 
@@ -169,19 +193,19 @@ impl Grid2<u8> {
 impl<T> Grid2<T> {
     pub fn enumerate(&self) -> Enumerate2D<'_, T> {
         Enumerate2D {
-            pos: UVec2::ZERO,
+            pos: IVec2::ZERO,
             grid: self,
         }
     }
 
     /// Attempts to construct a rectangular 2D grid from a flat `Vec<T>`. Length of `data` must be
-    /// exactly divisible by `width` and fit within a `u32`.
-    pub fn from_vec(data: Vec<T>, width: u32) -> Option<Self> {
+    /// exactly divisible by `width` and fit within a `i32`.
+    pub fn from_vec(data: Vec<T>, width: i32) -> Option<Self> {
         if data.len() % (width as usize) == 0 {
-            u32::try_from(data.len() / width as usize)
+            i32::try_from(data.len() / width as usize)
                 .ok()
                 .map(|height| Self {
-                    size: UVec2::new(width, height),
+                    size: IVec2::new(width, height),
                     stride: width as usize,
                     data,
                 })
@@ -190,27 +214,27 @@ impl<T> Grid2<T> {
         }
     }
 
-    pub fn get(&self, p: UVec2) -> &T {
+    pub fn get(&self, p: IVec2) -> &T {
         &self.get_row(p.y)[p.x as usize]
     }
 
-    pub fn get_mut(&mut self, p: UVec2) -> &mut T {
+    pub fn get_mut(&mut self, p: IVec2) -> &mut T {
         &mut self.get_row_mut(p.y)[p.x as usize]
     }
 
-    pub fn get_row(&self, y: u32) -> &[T] {
+    pub fn get_row(&self, y: i32) -> &[T] {
         let idx = (y as usize) * self.stride;
 
         &self.data[idx..(idx + self.size.x as usize)]
     }
 
-    pub fn get_row_mut(&mut self, y: u32) -> &mut [T] {
+    pub fn get_row_mut(&mut self, y: i32) -> &mut [T] {
         let idx = (y as usize) * self.stride;
 
         &mut self.data[idx..(idx + self.size.x as usize)]
     }
 
-    pub fn in_bounds(&self, p: UVec2) -> bool {
+    pub fn in_bounds(&self, p: IVec2) -> bool {
         (0..self.size.x).contains(&p.x) && (0..self.size.y).contains(&p.y)
     }
 
@@ -222,36 +246,41 @@ impl<T> Grid2<T> {
         self.into_iter()
     }
 
-    pub fn set(&mut self, p: UVec2, v: T) {
+    pub fn set(&mut self, p: IVec2, v: T) {
         *self.get_mut(p) = v;
     }
 
-    pub fn size(&self) -> UVec2 {
+    pub fn size(&self) -> IVec2 {
         self.size
     }
 
-    pub fn valid_neighbors4(&self, p: UVec2) -> ValidNeighbors<'_, 4, T> {
-        ValidNeighbors {
-            i: 0,
-            origin: p,
-            directions: [IVec2::NEG_Y, IVec2::X, IVec2::Y, IVec2::NEG_X],
-            grid: self,
-        }
-    }
-
-    pub fn valid_neighbors8(&self, p: UVec2) -> ValidNeighbors<'_, 8, T> {
+    pub fn valid_neighbors4(&self, p: IVec2) -> ValidNeighbors<'_, 4, T> {
         ValidNeighbors {
             i: 0,
             origin: p,
             directions: [
-                IVec2::NEG_Y,
-                IVec2::new(1, -1),
-                IVec2::X,
-                IVec2::ONE,
-                IVec2::Y,
-                IVec2::new(-1, 1),
-                IVec2::NEG_X,
-                IVec2::NEG_ONE,
+                Direction::North,
+                Direction::East,
+                Direction::South,
+                Direction::West,
+            ],
+            grid: self,
+        }
+    }
+
+    pub fn valid_neighbors8(&self, p: IVec2) -> ValidNeighbors<'_, 8, T> {
+        ValidNeighbors {
+            i: 0,
+            origin: p,
+            directions: [
+                Direction::North,
+                Direction::Northeast,
+                Direction::East,
+                Direction::Southeast,
+                Direction::South,
+                Direction::Southwest,
+                Direction::West,
+                Direction::Northwest,
             ],
             grid: self,
         }
@@ -262,7 +291,7 @@ impl<T> Grid2<T>
 where
     T: Eq,
 {
-    pub fn position(&self, value: &T) -> Option<UVec2> {
+    pub fn position(&self, value: &T) -> Option<IVec2> {
         self.data
             .iter()
             .position(|b| b == value)
@@ -277,7 +306,7 @@ impl<'grid, T> IntoIterator for &'grid Grid2<T> {
 
     fn into_iter(self) -> Self::IntoIter {
         Self::IntoIter {
-            pos: UVec2::ZERO,
+            pos: IVec2::ZERO,
             grid: self,
         }
     }

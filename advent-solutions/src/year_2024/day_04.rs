@@ -1,21 +1,16 @@
 use std::io::BufRead;
 
-use glam::{IVec2, UVec2};
+use glam::IVec2;
 
 use crate::common::Grid2;
 
 /// Starting from `(x + dx, y + dy)`, is the entire `pattern` in the `grid` when moving by
 /// `(dx, dy)` per `u8`?
-fn rest_in_grid(pattern: &[u8], grid: &Grid2<u8>, p: UVec2, dp: IVec2) -> bool {
+fn rest_in_grid(pattern: &[u8], grid: &Grid2<u8>, p: IVec2, dp: IVec2) -> bool {
     let mut p = p;
 
     for b in pattern {
-        p.x =
-            p.x.checked_add_signed(dp.x)
-                .expect("grid should always be within range of `usize`");
-        p.y =
-            p.y.checked_add_signed(dp.y)
-                .expect("grid should always be within range of `usize`");
+        p += dp;
 
         if grid.get(p) != b {
             return false;
@@ -27,7 +22,7 @@ fn rest_in_grid(pattern: &[u8], grid: &Grid2<u8>, p: UVec2, dp: IVec2) -> bool {
 
 /// Counts the number times "XMAS" can be found starting or ending at this cell when looking only
 /// forward in memory (right and/or down in the grid). To be used when scanning the entire grid.
-fn count_xmas_cell(grid: &Grid2<u8>, p: UVec2) -> u32 {
+fn count_xmas_cell(grid: &Grid2<u8>, p: IVec2) -> u32 {
     let rest = match *grid.get(p) {
         b'S' => b"AMX",
         b'X' => b"MAS",
@@ -71,7 +66,7 @@ fn count_xmas_cell(grid: &Grid2<u8>, p: UVec2) -> u32 {
 /// backwards, up, down, diagonally).
 fn count_xmas_grid(grid: &Grid2<u8>) -> u32 {
     let mut count = 0;
-    let UVec2 { x, y } = grid.size();
+    let IVec2 { x, y } = grid.size();
 
     for row in 0..y {
         for col in 0..x {
@@ -93,12 +88,12 @@ fn x_mas_opposite(byte: u8) -> Option<u8> {
 
 /// Is this cell the top-left corner of an "X-MAS" box? Limits scanning to be memory-forward and
 /// this is only intended to be used when scanning the whole `grid` minus padding for the box.
-fn is_x_mas_cell(grid: &Grid2<u8>, p: UVec2) -> bool {
+fn is_x_mas_cell(grid: &Grid2<u8>, p: IVec2) -> bool {
     if let Some(o1) = x_mas_opposite(*grid.get(p)) {
-        if let Some(o2) = x_mas_opposite(*grid.get(p + UVec2::X * 2)) {
-            return *grid.get(p + UVec2::ONE) == b'A'
-                && *grid.get(p + UVec2::Y * 2) == o2
-                && *grid.get(p + UVec2::ONE * 2) == o1;
+        if let Some(o2) = x_mas_opposite(*grid.get(p + IVec2::X * 2)) {
+            return *grid.get(p + IVec2::ONE) == b'A'
+                && *grid.get(p + IVec2::Y * 2) == o2
+                && *grid.get(p + IVec2::ONE * 2) == o1;
         }
     }
 
@@ -108,7 +103,7 @@ fn is_x_mas_cell(grid: &Grid2<u8>, p: UVec2) -> bool {
 /// Counts the number of times "X-MAS" boxes can be found within the grid.
 fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
     let mut count = 0;
-    let UVec2 { x, y } = grid.size();
+    let IVec2 { x, y } = grid.size();
 
     for row in 0..(y - 2) {
         for col in 0..(x - 2) {
@@ -195,7 +190,7 @@ MXMXAXMASX";
     fn block_search() {
         let grid = parsed_test_input();
 
-        assert!(is_x_mas_cell(&grid, UVec2::X));
+        assert!(is_x_mas_cell(&grid, IVec2::X));
 
         let match_count = count_x_mas_grid(&grid);
 

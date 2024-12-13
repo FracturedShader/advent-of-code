@@ -3,12 +3,12 @@ use std::{
     io::BufRead,
 };
 
-use glam::UVec2;
+use glam::IVec2;
 
 use crate::common::Grid2;
 
 /// Produces `(coord, score)` pairs for every trailhead ('0')
-fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (UVec2, usize)> + use<'_> {
+fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> + use<'_> {
     grid.enumerate().filter_map(|(p, &v)| {
         if v == b'0' {
             let mut queue = VecDeque::with_capacity(32);
@@ -28,7 +28,7 @@ fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (UVec2, usize)> + 
                 } else {
                     let n = v + 1;
 
-                    queue.extend(grid.valid_neighbors4(p).filter_map(|(p, &v)| {
+                    queue.extend(grid.valid_neighbors4(p).filter_map(|(_, (p, &v))| {
                         if v == n {
                             Some((p, v))
                         } else {
@@ -46,7 +46,7 @@ fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (UVec2, usize)> + 
 }
 
 /// Produces `(coord, rating)` pairs for every trailhead ('0')
-fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (UVec2, usize)> + use<'_> {
+fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> + use<'_> {
     grid.enumerate().filter_map(|(p, &v)| {
         if v == b'0' {
             let mut queue = VecDeque::with_capacity(128);
@@ -61,7 +61,7 @@ fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (UVec2, usize)> +
                 } else {
                     let n = v + 1;
 
-                    queue.extend(grid.valid_neighbors4(p).filter_map(|(p, &v)| {
+                    queue.extend(grid.valid_neighbors4(p).filter_map(|(_, (p, &v))| {
                         if v == n {
                             Some((p, v))
                         } else {
