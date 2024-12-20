@@ -1,8 +1,10 @@
 use std::{
-    collections::{BinaryHeap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     io::BufRead,
     ops::Range,
 };
+
+use crate::common::a_star;
 
 /// Heart of the DFA.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -87,10 +89,7 @@ impl ReplacementDFA {
     ///
     /// Note that a particular permutation may be seen more than once if it can be achieved via a
     /// different rule applied to a different part of the segment.
-    pub fn permute<'rules, 'segment>(
-        &'rules self,
-        segment: &'segment str,
-    ) -> DFAPermuter<'rules, 'segment> {
+    pub fn permute(&self, segment: String) -> DFAPermuter<'_> {
         DFAPermuter::new(self, segment)
     }
 }
@@ -253,10 +252,10 @@ impl<S1: AsRef<str>, S2: AsRef<str>> TryFrom<&[(S1, S2)]> for ReplacementDFA {
 ///
 /// Note that a particular permutation may be seen more than once if it can be achieved via a
 /// different rule applied to a different part of the segment.
-struct DFAPermuter<'rules, 'segment> {
+struct DFAPermuter<'rules> {
     rules: &'rules ReplacementDFA,
 
-    segment: &'segment str,
+    segment: String,
     segment_len: usize,
     segment_offset: usize,
 
@@ -265,13 +264,15 @@ struct DFAPermuter<'rules, 'segment> {
     replacement_idx: usize,
 }
 
-impl<'rules, 'segment> DFAPermuter<'rules, 'segment> {
-    pub fn new(rules: &'rules ReplacementDFA, segment: &'segment str) -> Self {
+impl<'rules> DFAPermuter<'rules> {
+    pub fn new(rules: &'rules ReplacementDFA, segment: String) -> Self {
+        let segment_len = segment.len();
+
         Self {
             rules,
 
             segment,
-            segment_len: segment.len(),
+            segment_len,
             segment_offset: 0,
 
             matches: None,
@@ -281,7 +282,7 @@ impl<'rules, 'segment> DFAPermuter<'rules, 'segment> {
     }
 }
 
-impl Iterator for DFAPermuter<'_, '_> {
+impl Iterator for DFAPermuter<'_> {
     type Item = String;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -358,7 +359,7 @@ where
 /// Determines the minimum number of rule applications required to get from "e" to the provided
 /// string. If no combination of provided rules can ever reach the target string, `None` is
 /// returned. This discovery may take quite some time since all possible states will be visited.
-fn min_construction_steps(rules: &[(String, String)], value: &str) -> Option<u32> {
+fn min_construction_steps(rules: &[(String, String)], value: &str) -> Option<usize> {
     // We take advantage of the hard lower bound and reverse the problem. Instead of starting at
     // "e" and trying to get to `value`, we start at `value` and work backwards to "e".
     let rules = rules.iter().map(|(f, t)| (t, f)).collect::<Vec<_>>();
@@ -367,40 +368,13 @@ fn min_construction_steps(rules: &[(String, String)], value: &str) -> Option<u32
         .try_into()
         .expect("it should be possible to construct a replacement DFA from reversed rules");
 
-    // We perform an A* search with our heuristic for potential remaining rule transformations
-    // simply being the length of the string.
-    let mut min_steps = HashMap::<String, u32>::new();
-    let mut queue = BinaryHeap::new();
-
-    min_steps.insert(value.to_owned(), 0);
-
-    queue.push((std::cmp::Reverse(value.len()), value.to_owned()));
-
-    while let Some((_, node)) = queue.pop() {
-        let node_dist = *min_steps
-            .get(&node)
-            .expect("nodes should have a distance before being visited");
-
-        if node == "e" {
-            return Some(node_dist);
-        }
-
-        let neighbor_dist = node_dist + 1;
-
-        queue.extend(dfa.permute(&node).filter_map(|s| {
-            let neighbor_min = min_steps.entry(s.clone()).or_insert(u32::MAX);
-
-            if neighbor_dist < *neighbor_min {
-                *neighbor_min = neighbor_dist;
-
-                Some((std::cmp::Reverse((neighbor_dist as usize) + s.len()), s))
-            } else {
-                None
-            }
-        }));
-    }
-
-    None
+    a_star(
+        value.to_owned(),
+        |s| dfa.permute(s.to_owned()).map(|p| (1, p)),
+        String::len,
+        |s| s == "e",
+    )
+    .map(|pb| pb.count() - 1)
 }
 
 pub fn part_01(reader: Option<impl BufRead>) {
@@ -414,7 +388,7 @@ pub fn part_01(reader: Option<impl BufRead>) {
         .try_into()
         .expect("puzzle input should fit in depth-2 DFA");
 
-    let results: HashSet<_> = dfa.permute(&input).collect();
+    let results: HashSet<_> = dfa.permute(input).collect();
     let num_distinct = results.len();
 
     println!("Distinct molecules: {num_distinct}");
@@ -441,7 +415,7 @@ mod test {
         let rules = [("H", "HO"), ("H", "OH"), ("O", "HH")];
         let dfa: ReplacementDFA = rules.as_slice().try_into().unwrap();
 
-        let results: HashSet<_> = dfa.permute("HOH").collect();
+        let results: HashSet<_> = dfa.permute("HOH".into()).collect();
 
         assert!(results.contains("HOOH"));
         assert!(results.contains("HOHO"));
@@ -455,7 +429,7 @@ mod test {
         let rules = vec![("H", "HO"), ("H", "OH"), ("O", "HH")];
         let dfa: ReplacementDFA = rules.as_slice().try_into().unwrap();
 
-        let results: HashSet<_> = dfa.permute("HOHOHO").collect();
+        let results: HashSet<_> = dfa.permute("HOHOHO".into()).collect();
 
         assert!(results.len() == 7);
     }
