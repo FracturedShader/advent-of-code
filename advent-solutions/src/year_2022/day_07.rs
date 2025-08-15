@@ -63,7 +63,7 @@ impl Path {
     /// traversal. A `Path` starting with `/` will first output a `PathSegment::Root` to indicate
     /// navigation to the root of the file system. The remaining parts are parsed as either moving
     /// up a directory or down into another directory.
-    fn segments(&self) -> impl Iterator<Item = Result<PathSegment, &'static str>> {
+    fn segments(&self) -> impl Iterator<Item = Result<PathSegment<'_>, &'static str>> {
         let source = if self.0.ends_with('/') {
             &self.0[..(self.0.len() - 1)]
         } else {

@@ -7,7 +7,7 @@ fn move_by(dir: char, curr_x: &mut i32, curr_y: &mut i32) {
         '^' => *curr_y += 1,
         'v' => *curr_y -= 1,
         _ => unreachable!(),
-    };
+    }
 }
 
 fn visit_houses(directions: &str) -> usize {

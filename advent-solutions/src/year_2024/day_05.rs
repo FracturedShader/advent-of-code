@@ -57,7 +57,7 @@ impl Updates {
         self.ranges.push((range_begin, range_end));
     }
 
-    pub fn iter(&self) -> UpdateIterator {
+    pub fn iter(&self) -> UpdateIterator<'_> {
         UpdateIterator {
             idx: 0,
             updates: self,
