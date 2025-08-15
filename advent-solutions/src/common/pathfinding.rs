@@ -85,43 +85,54 @@ struct SearchData<T, C> {
     visited: bool,
 }
 
+/// Contains a `node` in the path found by A* as well as the cost of reaching that node.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PathPoint<T, C> {
+    pub node: T,
+    pub cost: C,
+}
+
 /// Iterator which produces the shortest path from the goal node to the starting node. While this
 /// is the opposite of what A* is tasked with producing, this avoids extra allocations when the
 /// specifics of the path are not terribly relevant. The forward path can be produced by reversing
 /// this iterator.
-pub struct ReversePathBuilder<T> {
-    back_edges: HashMap<T, Option<T>>,
+pub struct ReversePathBuilder<T, C> {
+    back_edges: HashMap<T, SearchData<T, C>>,
     focus: Option<T>,
 }
 
-impl<T> ReversePathBuilder<T>
+impl<T, C> ReversePathBuilder<T, C>
 where
     T: Hash + Eq,
+    C: Copy + Default,
 {
-    fn from_search<C>(mut data: HashMap<T, SearchData<T, C>>, end: T) -> Self {
-        let back_edges: HashMap<T, Option<T>> = data
-            .drain()
-            .map(|(n, SearchData { previous, .. })| (n, previous))
-            .collect();
-
+    fn from_search(data: HashMap<T, SearchData<T, C>>, end: T) -> Self {
         Self {
-            back_edges,
+            back_edges: data,
             focus: Some(end),
         }
     }
 }
 
-impl<T> Iterator for ReversePathBuilder<T>
+impl<T, C> Iterator for ReversePathBuilder<T, C>
 where
     T: Clone + Hash + Eq + std::fmt::Debug,
+    C: Default,
 {
-    type Item = T;
+    type Item = PathPoint<T, C>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(item) = self.focus.take() {
-            self.focus = self.back_edges.remove(&item).flatten();
+        if let Some(node) = self.focus.take() {
+            let cost =
+                if let Some(SearchData { previous, cost, .. }) = self.back_edges.remove(&node) {
+                    self.focus = previous;
 
-            Some(item)
+                    cost
+                } else {
+                    C::default()
+                };
+
+            Some(PathPoint { node, cost })
         } else {
             None
         }
@@ -161,12 +172,12 @@ fn visit_node<T, C, Q, N, I, H, M>(
     T: Clone + Hash + Eq,
     C: Copy + PartialOrd + core::ops::Add<C, Output = C>,
     Q: Ord,
-    N: FnMut(&T) -> I,
+    N: FnMut(&T) -> Option<I>,
     I: IntoIterator<Item = (C, T)>,
     H: FnMut(&T) -> C,
     M: FnMut(T, Option<T>, C, C) -> (SearchData<T, C>, Q),
 {
-    let data_entry = data.get_mut(&node).unwrap();
+    let data_entry = data.get_mut(node).unwrap();
 
     if data_entry.visited {
         return;
@@ -176,26 +187,28 @@ fn visit_node<T, C, Q, N, I, H, M>(
 
     let cost = data_entry.cost;
 
-    queue.extend(neighbors(&node).into_iter().filter_map(|(dist, neighbor)| {
-        let neighbor_cost = cost + dist;
+    if let Some(iter) = neighbors(node) {
+        queue.extend(iter.into_iter().filter_map(|(dist, neighbor)| {
+            let neighbor_cost = cost + dist;
 
-        if let Some(entry) = data.get(&neighbor) {
-            if neighbor_cost >= entry.cost {
-                return None;
+            if let Some(entry) = data.get(&neighbor) {
+                if neighbor_cost >= entry.cost {
+                    return None;
+                }
             }
-        }
 
-        let (de, qe) = make_entries(
-            neighbor.clone(),
-            Some(node.clone()),
-            neighbor_cost + heuristic(&neighbor),
-            neighbor_cost,
-        );
+            let (de, qe) = make_entries(
+                neighbor.clone(),
+                Some(node.clone()),
+                neighbor_cost + heuristic(&neighbor),
+                neighbor_cost,
+            );
 
-        data.insert(neighbor, de);
+            data.insert(neighbor, de);
 
-        Some(qe)
-    }));
+            Some(qe)
+        }));
+    }
 }
 
 /// Finds the shortest path (as long as there are no negative edges) from `start` to
@@ -221,11 +234,11 @@ pub fn a_star<T, C, N, I, H, G>(
     mut neighbors: N,
     mut heuristic: H,
     mut is_goal: G,
-) -> Option<ReversePathBuilder<T>>
+) -> Option<ReversePathBuilder<T, C>>
 where
     T: Clone + Hash + Eq + Ord,
     C: Copy + Default + Ord + core::ops::Add<C, Output = C>,
-    N: FnMut(&T) -> I,
+    N: FnMut(&T) -> Option<I>,
     I: IntoIterator<Item = (C, T)>,
     H: FnMut(&T) -> C,
     G: FnMut(&T) -> bool,
@@ -275,11 +288,11 @@ pub fn a_star_unordered<T, C, N, H, G, I>(
     mut neighbors: N,
     mut heuristic: H,
     mut is_goal: G,
-) -> Option<ReversePathBuilder<T>>
+) -> Option<ReversePathBuilder<T, C>>
 where
     T: Clone + Hash + Eq,
     C: Copy + Default + Ord + core::ops::Add<C, Output = C>,
-    N: FnMut(&T) -> I,
+    N: FnMut(&T) -> Option<I>,
     H: FnMut(&T) -> C,
     G: FnMut(&T) -> bool,
     I: IntoIterator<Item = (C, T)>,

@@ -370,7 +370,7 @@ fn min_construction_steps(rules: &[(String, String)], value: &str) -> Option<usi
 
     a_star(
         value.to_owned(),
-        |s| dfa.permute(s.to_owned()).map(|p| (1, p)),
+        |s| Some(dfa.permute(s.to_owned()).map(|p| (1, p))),
         String::len,
         |s| s == "e",
     )
