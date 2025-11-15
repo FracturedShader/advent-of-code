@@ -164,7 +164,7 @@ impl Character {
     /// Gets the sum-total price of gold needed to buy all of this character's items from the `shop`
     pub fn get_total_price(&self, shop: &Shop) -> i32 {
         shop.weapons[self.weapon].price
-            + self.armor.map(|i| shop.armor[i].price).unwrap_or(0)
+            + self.armor.map_or(0, |i| shop.armor[i].price)
             + self
                 .rings
                 .iter()
@@ -218,7 +218,7 @@ impl<'shop> CharacterForwardNeighbors<'shop> {
     }
 }
 
-impl<'shop> Iterator for CharacterForwardNeighbors<'shop> {
+impl Iterator for CharacterForwardNeighbors<'_> {
     type Item = (i32, Character);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -241,7 +241,7 @@ impl<'shop> Iterator for CharacterForwardNeighbors<'shop> {
                 CharacterPermutation::Armor => {
                     self.state = CharacterPermutation::Rings0;
 
-                    let next_idx = self.start.armor.clone().map(|i| i + 1).unwrap_or(0);
+                    let next_idx = self.start.armor.map_or(0, |i| i + 1);
 
                     if next_idx < self.shop.armor.len() {
                         let mut next = self.start.clone();
@@ -319,7 +319,7 @@ impl<'shop> CharacterBackwardNeighbors<'shop> {
     }
 }
 
-impl<'shop> Iterator for CharacterBackwardNeighbors<'shop> {
+impl Iterator for CharacterBackwardNeighbors<'_> {
     type Item = (i32, Character);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -444,7 +444,7 @@ impl CreatureStats {
         let other_turns =
             self.health.div_euclid(other_damage) + 1.min(self.health.rem_euclid(other_damage));
 
-        return our_turns <= other_turns;
+        our_turns <= other_turns
     }
 }
 

@@ -220,7 +220,7 @@ impl<T> Grid2<T> {
     /// Attempts to construct a rectangular 2D grid from a flat `Vec<T>`. Length of `data` must be
     /// exactly divisible by `width` and fit within a `i32`.
     pub fn from_vec(data: Vec<T>, width: u32) -> Option<Self> {
-        if data.len() % (width as usize) == 0 {
+        if data.len().is_multiple_of(width as usize) {
             let signed_width =
                 i32::try_from(width).expect("grid shoud be less than `i32::MAX` wide");
 

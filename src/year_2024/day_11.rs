@@ -35,7 +35,7 @@ fn blink_stone(s: u64) -> BlinkResult {
     } else {
         let digits = log10_ceil(s);
 
-        if digits % 2 == 0 {
+        if digits.is_multiple_of(2) {
             let factor = 10u64.pow(digits / 2);
 
             BlinkResult::Split(s / factor, s % factor)

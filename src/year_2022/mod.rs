@@ -32,7 +32,7 @@ pub fn run_solution(day: i32, part: i32) {
         (8, 1) => day_08::part_01(reader),
         (8, 2) => day_08::part_02(reader),
         _ => {
-            eprintln!("Unknown solution {day:02}-{part:02}")
+            eprintln!("Unknown solution {day:02}-{part:02}");
         }
     }
 }

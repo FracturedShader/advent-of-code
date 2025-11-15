@@ -71,7 +71,7 @@ pub fn run_solution(day: i32, part: i32) {
         (21, 1) => day_21::part_01(),
         (21, 2) => day_21::part_02(),
         _ => {
-            eprintln!("Unknown solution {day:02}-{part:02}")
+            eprintln!("Unknown solution {day:02}-{part:02}");
         }
     }
 }
