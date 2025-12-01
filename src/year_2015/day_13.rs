@@ -1,9 +1,8 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-};
+use std::{collections::HashMap, io::BufRead};
 
 use itertools::Itertools;
+
+use crate::common;
 
 fn parse_happiness_map<S, I>(lines: I) -> HashMap<String, HashMap<String, i64>>
 where
@@ -46,15 +45,25 @@ fn best_seating(hap_map: &HashMap<String, HashMap<String, i64>>) -> i64 {
         .unwrap()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let hap_map = parse_happiness_map(reader.unwrap().lines().map_while(Result::ok));
+pub fn part_01() {
+    let hap_map = parse_happiness_map(
+        common::puzzle_input("2015-13")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    );
     let greatest_change = best_seating(&hap_map);
 
     println!("Total change in happiness: {greatest_change}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let mut hap_map = parse_happiness_map(reader.unwrap().lines().map_while(Result::ok));
+pub fn part_02() {
+    let mut hap_map = parse_happiness_map(
+        common::puzzle_input("2015-13")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    );
     let me = "Me".to_owned();
 
     for k in hap_map.keys().map(String::to_owned).collect_vec() {

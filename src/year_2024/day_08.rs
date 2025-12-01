@@ -1,9 +1,11 @@
 use std::{
     collections::{HashMap, HashSet},
-    io::{self, BufRead},
+    io::BufRead,
 };
 
 use glam::IVec2;
+
+use crate::common;
 
 /// A sparse map of antennas from the puzsle input. Antennas are grouped by frequency.
 #[derive(Debug, Clone)]
@@ -109,20 +111,16 @@ where
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let map: AntennaMap = reader
-        .expect("2024-08.txt should exist in the data folder")
-        .into();
+pub fn part_01() {
+    let map: AntennaMap = common::puzzle_input("2024-08").unwrap().into();
 
     let antinode_count = map.count_unique_antinodes();
 
     println!("Unique antinodes: {antinode_count}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let map: AntennaMap = reader
-        .expect("2024-08.txt should exist in the data folder")
-        .into();
+pub fn part_02() {
+    let map: AntennaMap = common::puzzle_input("2024-08").unwrap().into();
 
     let antinode_count = map.count_unique_harmonic_antinodes();
 

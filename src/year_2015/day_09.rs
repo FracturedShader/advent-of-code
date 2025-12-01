@@ -1,8 +1,7 @@
 use itertools::Itertools;
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-};
+use std::{collections::HashMap, io::BufRead};
+
+use crate::common;
 
 #[derive(Debug, Default)]
 struct LocationGraph {
@@ -74,14 +73,24 @@ impl LocationGraph {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let graph = LocationGraph::from_lines(reader.unwrap().lines().map_while(Result::ok));
+pub fn part_01() {
+    let graph = LocationGraph::from_lines(
+        common::puzzle_input("2015-09")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    );
 
     println!("{:?}", graph.good_traveling_salesman());
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let graph = LocationGraph::from_lines(reader.unwrap().lines().map_while(Result::ok));
+pub fn part_02() {
+    let graph = LocationGraph::from_lines(
+        common::puzzle_input("2015-09")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    );
 
     println!("{:?}", graph.bad_traveling_salesman());
 }

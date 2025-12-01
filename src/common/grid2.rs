@@ -157,7 +157,7 @@ impl Grid2<u8> {
     /// Try to construct an 2D grid from newline-delimited data (CRLF aware). Final newline not
     /// required.
     /// Errors if the data is not rectangular.
-    pub fn try_from_file_data(data: Vec<u8>) -> Result<Self, &'static str> {
+    pub fn try_from_data(data: Vec<u8>) -> Result<Self, &'static str> {
         let (width, stride) = {
             if let Some(newline_pos) = data.iter().position(|b| *b == b'\n') {
                 if data[newline_pos - 1] == b'\r' {
@@ -189,7 +189,7 @@ impl Grid2<u8> {
         }
     }
 
-    pub fn try_from_file<R>(mut reader: R) -> Result<Self, &'static str>
+    pub fn try_from_reader<R>(mut reader: R) -> Result<Self, &'static str>
     where
         R: Read,
     {
@@ -197,7 +197,7 @@ impl Grid2<u8> {
 
         let _ = reader.read_to_end(&mut buf);
 
-        Self::try_from_file_data(buf)
+        Self::try_from_data(buf)
     }
 }
 

@@ -1,8 +1,6 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-    iter::Peekable,
-};
+use std::{collections::HashMap, io::BufRead, iter::Peekable};
+
+use crate::common;
 
 fn sum_nums(json: &str) -> i64 {
     let mut num_start = None;
@@ -194,8 +192,8 @@ fn non_red_sum(json: &str) -> i64 {
     structure.non_red_sum().unwrap_or(0)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let total = reader
+pub fn part_01() {
+    let total = common::puzzle_input("2015-12")
         .unwrap()
         .lines()
         .map_while(Result::ok)
@@ -205,8 +203,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Total: {total}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let total = reader
+pub fn part_02() {
+    let total = common::puzzle_input("2015-12")
         .unwrap()
         .lines()
         .map_while(Result::ok)

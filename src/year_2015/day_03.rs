@@ -1,7 +1,6 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-};
+use std::{collections::HashMap, io::BufRead};
+
+use crate::common;
 
 fn move_by(dir: char, curr_x: &mut i32, curr_y: &mut i32) {
     match dir {
@@ -69,12 +68,12 @@ where
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    for_instruction_set(reader.unwrap(), visit_houses);
+pub fn part_01() {
+    for_instruction_set(common::puzzle_input("2015-03").unwrap(), visit_houses);
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    for_instruction_set(reader.unwrap(), visit_houses_split);
+pub fn part_02() {
+    for_instruction_set(common::puzzle_input("2015-03").unwrap(), visit_houses_split);
 }
 
 #[cfg(test)]

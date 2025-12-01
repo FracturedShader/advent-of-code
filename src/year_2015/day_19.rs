@@ -1,10 +1,10 @@
 use std::{
     collections::{HashMap, HashSet},
-    io::{self, BufRead},
+    io::BufRead,
     ops::Range,
 };
 
-use crate::common::a_star;
+use crate::common::{self, a_star};
 
 /// Heart of the DFA.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -377,11 +377,14 @@ fn min_construction_steps(rules: &[(String, String)], value: &str) -> Option<usi
     .map(|pb| pb.count() - 1)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-
-    let (replacements, input) = parse_puzzle_input(reader.lines().map_while(Result::ok))
-        .expect("input should have some replacement definitions and an input");
+pub fn part_01() {
+    let (replacements, input) = parse_puzzle_input(
+        common::puzzle_input("2015-19")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    )
+    .expect("input should have some replacement definitions and an input");
 
     let dfa: ReplacementDFA = replacements
         .as_slice()
@@ -394,11 +397,14 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Distinct molecules: {num_distinct}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-
-    let (replacements, input) = parse_puzzle_input(reader.lines().map_while(Result::ok))
-        .expect("input should have some replacement definitions and an input");
+pub fn part_02() {
+    let (replacements, input) = parse_puzzle_input(
+        common::puzzle_input("2015-19")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    )
+    .expect("input should have some replacement definitions and an input");
 
     let min_steps = min_construction_steps(&replacements, &input)
         .expect("full reduction should be possible with provided rules");

@@ -1,9 +1,8 @@
-use std::{
-    io::{self, BufRead},
-    str::FromStr,
-};
+use std::{io::BufRead, str::FromStr};
 
 use anyhow::Context;
+
+use crate::common;
 
 /// Representation for moving at least one crate between two separate stacks
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -144,9 +143,9 @@ impl Stacks {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let mut lines = reader
-        .expect("data should be available for this problem")
+pub fn part_01() {
+    let mut lines = common::puzzle_input("2022-05")
+        .unwrap()
         .lines()
         .map_while(Result::ok);
 
@@ -165,9 +164,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     );
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let mut lines = reader
-        .expect("data should be available for this problem")
+pub fn part_02() {
+    let mut lines = common::puzzle_input("2022-05")
+        .unwrap()
         .lines()
         .map_while(Result::ok);
 

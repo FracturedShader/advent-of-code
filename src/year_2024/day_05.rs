@@ -1,9 +1,11 @@
 use std::{
     collections::{HashMap, HashSet},
-    io::{self, BufRead},
+    io::BufRead,
 };
 
 use nom::{character, sequence, IResult};
+
+use crate::common;
 
 /// An `Ordering` is a pair of numbers indicating a `(before, after)` relationship.
 type Ordering = (i32, i32);
@@ -169,9 +171,8 @@ where
     Ok((orderings, updates))
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let (orderings, updates) =
-        parse_input(reader.expect("2024-05.txt should be in the data folder")).unwrap();
+pub fn part_01() {
+    let (orderings, updates) = parse_input(common::puzzle_input("2024-05").unwrap()).unwrap();
 
     let deny_lists = orderings_to_deny_lists(&orderings);
 
@@ -184,9 +185,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Sum of ordered midpoints: {midpoint_sum}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let (orderings, updates) =
-        parse_input(reader.expect("2024-05.txt should be in the data folder")).unwrap();
+pub fn part_02() {
+    let (orderings, updates) = parse_input(common::puzzle_input("2024-05").unwrap()).unwrap();
 
     let deny_lists = orderings_to_deny_lists(&orderings);
 

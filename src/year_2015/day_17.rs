@@ -1,7 +1,9 @@
 use std::{
     collections::{HashSet, VecDeque},
-    io::{self, BufRead},
+    io::BufRead,
 };
+
+use crate::common;
 
 fn container_combinations(to_store: usize, containers: &[usize]) -> (usize, usize) {
     let keys = containers
@@ -52,8 +54,8 @@ fn container_combinations(to_store: usize, containers: &[usize]) -> (usize, usiz
     (combos, min_combos)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let containers = reader
+pub fn part_01() {
+    let containers = common::puzzle_input("2015-17")
         .unwrap()
         .lines()
         .map_while(Result::ok)
@@ -65,8 +67,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("{combos}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let containers = reader
+pub fn part_02() {
+    let containers = common::puzzle_input("2015-17")
         .unwrap()
         .lines()
         .map_while(Result::ok)

@@ -1,7 +1,6 @@
-use std::{
-    collections::HashSet,
-    io::{self, BufRead},
-};
+use std::{collections::HashSet, io::BufRead};
+
+use crate::common;
 
 fn string_is_nice(input: &str) -> bool {
     let vowels = "aeiou";
@@ -63,17 +62,17 @@ where
         .count()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
+pub fn part_01() {
     println!(
         "Total nice strings: {}",
-        count_strings(reader.unwrap(), string_is_nice)
+        count_strings(common::puzzle_input("2015-05").unwrap(), string_is_nice)
     );
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
+pub fn part_02() {
     println!(
         "Total nice strings: {}",
-        count_strings(reader.unwrap(), string_is_nicer)
+        count_strings(common::puzzle_input("2015-05").unwrap(), string_is_nicer)
     );
 }
 

@@ -1,6 +1,8 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
 
 use nom::{character, multi::separated_list1, IResult};
+
+use crate::common;
 
 fn parse_line(input: &str) -> IResult<&str, Vec<i32>> {
     separated_list1(character::complete::space1, character::complete::i32)(input)
@@ -87,9 +89,9 @@ fn is_gradient_partially_safe(values: &[i32]) -> bool {
 ///     1. Convert the line to a list of numbers
 ///     2. Check that the list is strictly increasing/decreasing with allowable differences
 /// 2. Count the number of lines that pass the checks
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let num_safe = reader
-        .expect("2024-02.txt should exsist in the data directory")
+pub fn part_01() {
+    let num_safe = common::puzzle_input("2024-02")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .map(|l| {
@@ -111,9 +113,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
 ///        expectation is calculated from first two elements) when checking that it is strictly
 ///        increasing/decreasing with allowable differences
 /// 2. Count the number of lines that pass the checks
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let num_safe = reader
-        .expect("2024-02.txt should exsist in the data directory")
+pub fn part_02() {
+    let num_safe = common::puzzle_input("2024-02")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .map(|l| {

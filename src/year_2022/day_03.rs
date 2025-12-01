@@ -1,9 +1,8 @@
 use itertools::Itertools;
-use std::{
-    io::{self, BufRead},
-    ops::BitOr,
-};
+use std::{io::BufRead, ops::BitOr};
 use thiserror::Error;
+
+use crate::common;
 
 /// An item in an Elf's rucksack. Guaranteed to be in the range `0..52`
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -94,9 +93,9 @@ where
         .and_then(|ii| Item::try_from(ii).ok())
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let priority_sum = reader
-        .expect("This problem requires data input")
+pub fn part_01() {
+    let priority_sum = common::puzzle_input("2022-03")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .filter_map(|l| {
@@ -120,9 +119,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Sum of priorities present in both compartments of each rucksack: {priority_sum}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let priority_sum = reader
-        .expect("This problem requires data input")
+pub fn part_02() {
+    let priority_sum = common::puzzle_input("2022-03")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .filter_map(|l| {

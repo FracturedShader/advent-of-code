@@ -3,7 +3,7 @@ use std::io::{self, BufRead};
 use glam::I64Vec2;
 use nom::IResult;
 
-use crate::common::a_star_unordered;
+use crate::common::{self, a_star_unordered};
 
 /// Encapsulates the details for a button, including the `cost` for pressing it and the `offset`
 /// that gets applied on a press.
@@ -204,9 +204,9 @@ impl<T: BufRead> IntoMachines<T> for T {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let total_tokens = reader
-        .expect("2024-13.txt should exist in the data directory")
+pub fn part_01() {
+    let total_tokens = common::puzzle_input("2024-13")
+        .unwrap()
         .into_machines(false)
         .filter_map(|m| m.unwrap().tokens_to_prize())
         .sum::<i64>();
@@ -214,9 +214,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Fewest tokens to win all prizes: {total_tokens}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let total_tokens = reader
-        .expect("2024-13.txt should exist in the data directory")
+pub fn part_02() {
+    let total_tokens = common::puzzle_input("2024-13")
+        .unwrap()
         .into_machines(true)
         .filter_map(|m| m.unwrap().tokens_to_far_prize())
         .sum::<i64>();

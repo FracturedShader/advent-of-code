@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 struct Reindeer {
     speed: u32,
@@ -59,8 +61,8 @@ fn per_second_scoring(reindeer: &[Reindeer]) -> u32 {
     points.into_iter().max().unwrap()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let max_dist = reader
+pub fn part_01() {
+    let max_dist = common::puzzle_input("2015-14")
         .unwrap()
         .lines()
         .map_while(Result::ok)
@@ -72,8 +74,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Winning distance: {max_dist}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let reindeer = reader
+pub fn part_02() {
+    let reindeer = common::puzzle_input("2015-14")
         .unwrap()
         .lines()
         .map_while(Result::ok)

@@ -1,7 +1,6 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-};
+use std::{collections::HashMap, io::BufRead};
+
+use crate::common;
 
 struct Aunt(HashMap<String, usize>);
 
@@ -76,8 +75,8 @@ fn mfcsam_full() -> HashMap<String, Reading> {
         .collect()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let aunts = reader
+pub fn part_01() {
+    let aunts = common::puzzle_input("2015-16")
         .unwrap()
         .lines()
         .filter_map(|l| l.ok().map(Aunt::parse))
@@ -97,8 +96,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     }
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let aunts = reader
+pub fn part_02() {
+    let aunts = common::puzzle_input("2015-16")
         .unwrap()
         .lines()
         .filter_map(|l| l.ok().map(Aunt::parse))

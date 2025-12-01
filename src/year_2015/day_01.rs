@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 struct FloorTraversalResult {
     end_floor: i32,
@@ -42,14 +44,14 @@ where
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    for_each_result(reader.unwrap(), |walk_results| {
+pub fn part_01() {
+    for_each_result(common::puzzle_input("2015-01").unwrap(), |walk_results| {
         println!("Ended up on floor {}", walk_results.end_floor);
     });
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    for_each_result(reader.unwrap(), |walk_results| {
+pub fn part_02() {
+    for_each_result(common::puzzle_input("2015-01").unwrap(), |walk_results| {
         println!(
             "First got to the basement at step {}",
             walk_results.first_saw_basement

@@ -1,9 +1,11 @@
 use std::{
     collections::{BTreeMap, HashMap},
     fmt,
-    io::{self, BufRead},
+    io::BufRead,
     str::FromStr,
 };
+
+use crate::common;
 
 /// Explicit typing for the lines of a terminal session. Lines are either a `Command` or an
 /// `Output` from one.
@@ -551,10 +553,9 @@ impl<'a> FileSystemVisitor<'a> for DirectorySizer<'a> {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-
-    let fs = reader
+pub fn part_01() {
+    let fs = common::puzzle_input("2022-07")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .map(|l| {
@@ -572,10 +573,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     );
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-
-    let fs = reader
+pub fn part_02() {
+    let fs = common::puzzle_input("2022-07")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .map(|l| {

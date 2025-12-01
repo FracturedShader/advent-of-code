@@ -1,11 +1,8 @@
-use std::{
-    collections::VecDeque,
-    io::{self, BufRead},
-};
+use std::collections::VecDeque;
 
 use glam::IVec2;
 
-use crate::common::{Direction, Grid2};
+use crate::common::{self, Direction, Grid2};
 
 /// A single garden plot with its coordinate and mask of same-type neighbors
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -249,8 +246,8 @@ where
         .collect()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let garden = Grid2::try_from_file(reader.expect("2024-12.txt should be in the data folder"))
+pub fn part_01() {
+    let garden = Grid2::try_from_reader(common::puzzle_input("2024-12").unwrap())
         .expect("file should be a garden map");
 
     let fencing_cost = regions(&garden).iter().map(Region::price).sum::<usize>();
@@ -258,8 +255,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Total cost: {fencing_cost}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let garden = Grid2::try_from_file(reader.expect("2024-12.txt should be in the data folder"))
+pub fn part_02() {
+    let garden = Grid2::try_from_reader(common::puzzle_input("2024-12").unwrap())
         .expect("file should be a garden map");
 
     let fencing_cost = regions(&garden)
@@ -280,7 +277,7 @@ BBCD
 BBCC
 EEEC";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_data(input.bytes().collect()).unwrap()
     }
 
     fn enclosed_regions() -> Grid2<u8> {
@@ -290,7 +287,7 @@ OOOOO
 OXOXO
 OOOOO";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_data(input.bytes().collect()).unwrap()
     }
 
     fn medium_grid() -> Grid2<u8> {
@@ -305,7 +302,7 @@ MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_data(input.bytes().collect()).unwrap()
     }
 
     fn big_e() -> Grid2<u8> {
@@ -315,7 +312,7 @@ EEEEE
 EXXXX
 EEEEE";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_data(input.bytes().collect()).unwrap()
     }
 
     fn abba() -> Grid2<u8> {
@@ -326,7 +323,7 @@ ABBAAA
 ABBAAA
 AAAAAA";
 
-        Grid2::try_from_file_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_data(input.bytes().collect()).unwrap()
     }
 
     #[test]

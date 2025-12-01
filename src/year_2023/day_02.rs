@@ -1,7 +1,6 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-};
+use std::{collections::HashMap, io::BufRead};
+
+use crate::common;
 
 fn draw_possible(draw: &str, bag: &HashMap<&str, i32>) -> bool {
     draw.split(',').all(|combo| {
@@ -73,11 +72,11 @@ fn game_power(line: &str) -> i64 {
     bag.values().product()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
+pub fn part_01() {
     let bag = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
 
-    let possible_id_sum = reader
-        .expect("data should be available for this problem")
+    let possible_id_sum = common::puzzle_input("2023-02")
+        .unwrap()
         .lines()
         .map_while(std::io::Result::ok)
         .filter_map(|l| possible_game(&l, &bag))
@@ -86,9 +85,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     print!("Sum of IDs for possible games: {possible_id_sum}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let power_sum = reader
-        .expect("data should be available for this problem")
+pub fn part_02() {
+    let power_sum = common::puzzle_input("2023-02")
+        .unwrap()
         .lines()
         .map_while(std::io::Result::ok)
         .map(|l| game_power(&l))

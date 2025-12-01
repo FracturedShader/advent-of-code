@@ -1,8 +1,6 @@
-use std::io::{self, BufRead};
-
 use glam::IVec2;
 
-use crate::common::Grid2;
+use crate::common::{self, Grid2};
 
 /// Explicit representation of the four cardinal directions in 2D.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -317,10 +315,9 @@ fn num_obstruction_loop_options(lab_map: &Grid2<u8>, mut guard: Guard) -> usize 
     loops_count
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let lab_map =
-        Grid2::try_from_file(reader.expect("2024-06.txt should exist in the data directory"))
-            .expect("problem input should be a valid map");
+pub fn part_01() {
+    let lab_map = Grid2::try_from_reader(common::puzzle_input("2024-06").unwrap())
+        .expect("problem input should be a valid map");
     let guard = Guard::try_from(&lab_map).expect("input map should have a guard");
 
     let cells_visited = num_cells_patrolled(&lab_map, guard);
@@ -328,10 +325,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Cells visited: {cells_visited}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let lab_map =
-        Grid2::try_from_file(reader.expect("2024-06.txt should exist in the data directory"))
-            .expect("problem input should be a valid map");
+pub fn part_02() {
+    let lab_map = Grid2::try_from_reader(common::puzzle_input("2024-06").unwrap())
+        .expect("problem input should be a valid map");
     let guard = Guard::try_from(&lab_map).expect("input map should have a guard");
 
     let loop_options = num_obstruction_loop_options(&lab_map, guard);
@@ -355,7 +351,7 @@ mod test {
 #.........
 ......#...";
 
-        Grid2::try_from_file(input.as_bytes()).unwrap()
+        Grid2::try_from_reader(input.as_bytes()).unwrap()
     }
 
     #[test]

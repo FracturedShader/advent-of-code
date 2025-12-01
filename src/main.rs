@@ -8,7 +8,14 @@ fn main() {
     let mut args = std::env::args();
 
     if args.len() == 1 {
-        println!("This application expects one argument in the form YYYY-DD-PP (year-day-part) and any needed inputs to exist in data/YYYY-DD.txt");
+        println!(
+            "This application expects at least one argument in the form YYYY-DD-PP \
+            (year-day-part) optionally followed by a puzzle input path."
+        );
+        println!(
+            "If a puzzle requires input it will look for YYYY-DD.txt in the current \
+            directory and a 'data' folder before falling back to stdin."
+        );
         println!("The following solutions are implemented:");
 
         for (year, solved) in [

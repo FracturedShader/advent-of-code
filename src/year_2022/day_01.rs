@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 /// Helper struct to make generating an unknown number of Elves more idiomatic by leveraging the
 /// fact that [`Elf::parse_one`] modifies the iterator and returns an `Option<Elf>`.
@@ -72,13 +74,8 @@ impl Elf {
 /// Parses the problem input and returns the Elf objects parsed as well as their cummulative
 /// carried calories.
 /// Panics if reader is `None` as a convenience for otherwise identical `expect`
-fn parse_input(reader: io::Result<impl BufRead>) -> (Vec<Elf>, Vec<u32>) {
-    let elves = Elf::parse_all(
-        reader
-            .expect("This problem requires data input")
-            .lines()
-            .map_while(Result::ok),
-    );
+fn parse_input(reader: Box<dyn BufRead>) -> (Vec<Elf>, Vec<u32>) {
+    let elves = Elf::parse_all(reader.lines().map_while(Result::ok));
 
     let sum_calories = elves.iter().map(Elf::calories_carried).collect();
 
@@ -109,8 +106,8 @@ fn _part_01_streaming(reader: impl BufRead) -> i32 {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let (_, sum_calories) = parse_input(reader);
+pub fn part_01() {
+    let (_, sum_calories) = parse_input(common::puzzle_input("2022-01").unwrap());
 
     println!(
         "Most calories carried by an Elf: {}",
@@ -146,8 +143,8 @@ fn _part_02_streaming(reader: impl BufRead) -> i32 {
     top_three.iter().sum()
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let (_, mut sum_calories) = parse_input(reader);
+pub fn part_02() {
+    let (_, mut sum_calories) = parse_input(common::puzzle_input("2022-01").unwrap());
 
     sum_calories.sort_by(|a, b| b.partial_cmp(a).unwrap());
 
@@ -181,7 +178,7 @@ mod test {
 
 10000";
 
-        let (_, sum_calories) = parse_input(Ok(BufReader::new(input.as_bytes())));
+        let (_, sum_calories) = parse_input(Box::new(BufReader::new(input.as_bytes())));
 
         assert_eq!(vec![6000, 4000, 11000, 24000, 10000], sum_calories);
     }

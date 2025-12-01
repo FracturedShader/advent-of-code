@@ -1,7 +1,6 @@
-use std::{
-    fmt,
-    io::{self, BufRead},
-};
+use std::{fmt, io::BufRead};
+
+use crate::common;
 
 trait Score {
     fn score(&self) -> u32;
@@ -132,9 +131,9 @@ impl TryFrom<u8> for HandShape {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let total_score = reader
-        .expect("This problem requires data input")
+pub fn part_01() {
+    let total_score = common::puzzle_input("2022-02")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .map(|l| {
@@ -150,9 +149,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Strategy guide total score: {total_score}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let total_score = reader
-        .expect("This problem requires data input")
+pub fn part_02() {
+    let total_score = common::puzzle_input("2022-02")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .map(|l| {

@@ -1,7 +1,9 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
 
 use itertools::Itertools;
 use rayon::prelude::*;
+
+use crate::common;
 
 /// Represents which cells are visible from outside the grid in row-major order
 struct VisibilityMap(Vec<bool>);
@@ -262,17 +264,23 @@ where
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-    let map = reader.lines().map_while(Result::ok).collect::<TreeMap>();
+pub fn part_01() {
+    let map = common::puzzle_input("2022-08")
+        .unwrap()
+        .lines()
+        .map_while(Result::ok)
+        .collect::<TreeMap>();
     let vis = map.compute_visibility();
 
     println!("Total visible trees: {}", vis.num_visible());
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-    let map = reader.lines().map_while(Result::ok).collect::<TreeMap>();
+pub fn part_02() {
+    let map = common::puzzle_input("2022-08")
+        .unwrap()
+        .lines()
+        .map_while(Result::ok)
+        .collect::<TreeMap>();
     let scores = map.compute_scenic_score();
 
     println!("Highest scenic score: {}", scores.highest_score());

@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 struct Point(usize, usize);
 
@@ -202,18 +204,18 @@ fn process_instructions(reader: impl BufRead, lights: &mut impl LightChanger) {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
+pub fn part_01() {
     let mut simple_lights = SimpleLights::default();
 
-    process_instructions(reader.unwrap(), &mut simple_lights);
+    process_instructions(common::puzzle_input("2015-06").unwrap(), &mut simple_lights);
 
     println!("Lights on: {}", simple_lights.count_on());
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
+pub fn part_02() {
     let mut var_lights = VariableLights::default();
 
-    process_instructions(reader.unwrap(), &mut var_lights);
+    process_instructions(common::puzzle_input("2015-06").unwrap(), &mut var_lights);
 
     println!("Lights on: {}", var_lights.count_on());
 }

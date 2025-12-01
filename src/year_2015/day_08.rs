@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 fn str_lengths(input: &str) -> (usize, usize) {
     let code_len = input.len();
@@ -38,8 +40,8 @@ fn str_encode_lengths(input: &str) -> (usize, usize) {
     (code_len, encode_len)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let total_diff = reader
+pub fn part_01() {
+    let total_diff = common::puzzle_input("2015-08")
         .unwrap()
         .lines()
         .map_while(Result::ok)
@@ -53,8 +55,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Total diff: {total_diff}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let total_diff = reader
+pub fn part_02() {
+    let total_diff = common::puzzle_input("2015-08")
         .unwrap()
         .lines()
         .map_while(Result::ok)

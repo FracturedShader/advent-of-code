@@ -1,6 +1,7 @@
 use std::fmt::{self, Display};
-use std::io;
 use std::{collections::HashMap, error::Error, io::BufRead};
+
+use crate::common;
 
 enum Token {
     Literal(String),
@@ -188,20 +189,28 @@ impl LogicWires {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
+pub fn part_01() {
     let mut wires = LogicWires::default();
 
-    for line in reader.unwrap().lines().map_while(Result::ok) {
+    for line in common::puzzle_input("2015-07")
+        .unwrap()
+        .lines()
+        .map_while(Result::ok)
+    {
         wires.add_connection(&line);
     }
 
     println!("{:?}", wires.val("a"));
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
+pub fn part_02() {
     let mut wires = LogicWires::default();
 
-    for line in reader.unwrap().lines().map_while(Result::ok) {
+    for line in common::puzzle_input("2015-07")
+        .unwrap()
+        .lines()
+        .map_while(Result::ok)
+    {
         wires.add_connection(&line);
     }
 

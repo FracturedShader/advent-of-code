@@ -1,7 +1,9 @@
 use std::{
     collections::{HashMap, VecDeque},
-    io::{self, BufRead},
+    io::BufRead,
 };
+
+use crate::common;
 
 #[derive(Debug, Default)]
 struct Ingredient {
@@ -156,8 +158,8 @@ fn highest_500cal_score(teaspoons: i64, ingredients: &[Ingredient]) -> (Vec<i64>
     (best_candidate, best_total)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let ingredients = reader
+pub fn part_01() {
+    let ingredients = common::puzzle_input("2015-15")
         .unwrap()
         .lines()
         .map_while(Result::ok)
@@ -167,8 +169,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("{}", highest_score(100, &ingredients).1);
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let ingredients = reader
+pub fn part_02() {
+    let ingredients = common::puzzle_input("2015-15")
         .unwrap()
         .lines()
         .map_while(Result::ok)

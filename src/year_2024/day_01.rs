@@ -1,9 +1,8 @@
-use std::{
-    collections::HashMap,
-    io::{self, BufRead},
-};
+use std::{collections::HashMap, io::BufRead};
 
 use nom::{character, sequence, IResult};
+
+use crate::common;
 
 fn parse_line(input: &str) -> IResult<&str, (i32, i32)> {
     sequence::separated_pair(
@@ -31,9 +30,9 @@ fn stream_input(reader: impl BufRead) -> impl Iterator<Item = (i32, i32)> {
 /// 1. Split the incoming stream into two `Vec`s of numbers
 /// 2. Sort each `Vec` independently
 /// 3. Walk both `Vec`s and sum their absolute differences
-pub fn part_01(reader: io::Result<impl BufRead>) {
+pub fn part_01() {
     let (mut left, mut right): (Vec<_>, Vec<_>) =
-        stream_input(reader.expect("2024-01.txt should exist in the data directory")).unzip();
+        stream_input(common::puzzle_input("2024-01").unwrap()).unzip();
 
     left.sort_unstable();
     right.sort_unstable();
@@ -51,11 +50,11 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
 /// 1. Split the incoming stream into pairs of numbers, putting the left in a `Vec` and the right in
 ///    a `HashMap` to track how many times a number is seen
 /// 2. Walk the `Vec` and multiply the value by what's in the `HashMap` for it (or 0)
-pub fn part_02(reader: io::Result<impl BufRead>) {
+pub fn part_02() {
     let mut left = Vec::new();
     let mut right = HashMap::<i32, i32>::new();
 
-    for (l, r) in stream_input(reader.expect("2024-01.txt should exist in the data directory")) {
+    for (l, r) in stream_input(common::puzzle_input("2024-01").unwrap()) {
         left.push(l);
 
         *right.entry(r).or_default() += 1;

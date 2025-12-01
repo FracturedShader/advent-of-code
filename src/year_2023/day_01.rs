@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 /// Handles traversing a sequence of bytes to find a match
 struct ByteSequence<const N: usize> {
@@ -150,9 +152,9 @@ fn calibration_numbers(line: &str) -> i32 {
     first_num.unwrap_or(0) * 10 + second_num.unwrap_or(0)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let total = reader
-        .expect("data should be available for this problem")
+pub fn part_01() {
+    let total = common::puzzle_input("2023-01")
+        .unwrap()
         .lines()
         .filter_map(|l| l.ok().as_deref().map(calibration_numerals))
         .sum::<i32>();
@@ -160,9 +162,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Calibration total: {total}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let total = reader
-        .expect("data should be available for this problem")
+pub fn part_02() {
+    let total = common::puzzle_input("2023-01")
+        .unwrap()
         .lines()
         .filter_map(|l| l.ok().as_deref().map(calibration_numbers))
         .sum::<i32>();

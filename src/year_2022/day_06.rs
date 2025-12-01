@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::Read;
+
+use crate::common;
 
 /// Looks for `SEQ_LEN` unique characters in a row and returns the index after the sequence ends if
 /// such a sequence can be found.
@@ -26,17 +28,15 @@ where
         .map(|(i, _)| i + 1)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-    let start = marker_end::<4, _>(reader.bytes().flatten())
+pub fn part_01() {
+    let start = marker_end::<4, _>(common::puzzle_input("2022-06").unwrap().bytes().flatten())
         .expect("data should contain start-of-packet marker");
 
     println!("Packet data starts after character: {start}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let reader = reader.expect("data should be available for this problem");
-    let start = marker_end::<14, _>(reader.bytes().flatten())
+pub fn part_02() {
+    let start = marker_end::<14, _>(common::puzzle_input("2022-06").unwrap().bytes().flatten())
         .expect("data should contain start-of-message marker");
 
     println!("Message starts after character: {start}");

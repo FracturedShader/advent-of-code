@@ -1,11 +1,8 @@
-use std::{
-    collections::{HashSet, VecDeque},
-    io::{self, BufRead},
-};
+use std::collections::{HashSet, VecDeque};
 
 use glam::IVec2;
 
-use crate::common::Grid2;
+use crate::common::{self, Grid2};
 
 /// Produces `(coord, score)` pairs for every trailhead ('0')
 fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> + use<'_> {
@@ -78,16 +75,16 @@ fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> +
     })
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let grid = Grid2::try_from_file(reader.expect("2024-10.txt should be in the data folder"))
+pub fn part_01() {
+    let grid = Grid2::try_from_reader(common::puzzle_input("2024-10").unwrap())
         .expect("file should be a topographic map");
     let trailhead_scores_sum = trailhead_scores(&grid).map(|t| t.1).sum::<usize>();
 
     println!("Sum of trailhead scores: {trailhead_scores_sum}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let grid = Grid2::try_from_file(reader.expect("2024-10.txt should be in the data folder"))
+pub fn part_02() {
+    let grid = Grid2::try_from_reader(common::puzzle_input("2024-10").unwrap())
         .expect("file should be a topographic map");
     let trailhead_ratings_sum = trailhead_ratings(&grid).map(|t| t.1).sum::<usize>();
 
@@ -110,7 +107,7 @@ mod test {
 01329801
 10456732";
 
-        Grid2::try_from_file(input.as_bytes()).unwrap()
+        Grid2::try_from_reader(input.as_bytes()).unwrap()
     }
 
     #[test]

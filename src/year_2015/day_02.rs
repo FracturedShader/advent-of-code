@@ -1,4 +1,6 @@
-use std::io::{self, prelude::*};
+use std::io::BufRead;
+
+use crate::common;
 
 #[derive(Default)]
 struct WrapRequirements {
@@ -32,17 +34,17 @@ fn wrap_gifts(reader: impl BufRead) -> WrapRequirements {
     reqs
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
+pub fn part_01() {
     println!(
         "Total wrapping paper needed: {}",
-        wrap_gifts(reader.unwrap()).paper_area
+        wrap_gifts(common::puzzle_input("2015-02").unwrap()).paper_area
     );
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
+pub fn part_02() {
     println!(
         "Total feet of ribbon: {}",
-        wrap_gifts(reader.unwrap()).ribbon_length
+        wrap_gifts(common::puzzle_input("2015-02").unwrap()).ribbon_length
     );
 }
 

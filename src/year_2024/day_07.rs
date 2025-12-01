@@ -1,8 +1,10 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
 
 use nom::{bytes, character, multi, sequence, IResult};
 
 use rayon::prelude::*;
+
+use crate::common;
 
 fn parse_input_line(input: &str) -> IResult<&str, (u64, Vec<u64>)> {
     sequence::separated_pair(
@@ -135,8 +137,8 @@ where
         .collect()
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let input = parse_input(reader.expect("2024-07.txt should be in the data folder"));
+pub fn part_01() {
+    let input = parse_input(common::puzzle_input("2024-07").unwrap());
 
     let calibration_total = input
         .par_iter()
@@ -152,8 +154,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Calibration total: {calibration_total}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let input = parse_input(reader.expect("2024-07.txt should be in the data folder"));
+pub fn part_02() {
+    let input = parse_input(common::puzzle_input("2024-07").unwrap());
 
     let calibration_total = input
         .par_iter()

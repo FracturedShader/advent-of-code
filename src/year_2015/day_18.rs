@@ -1,7 +1,9 @@
 use std::{
     fmt::{Display, Write},
-    io::{self, BufRead},
+    io::BufRead,
 };
+
+use crate::common;
 
 struct World {
     a: Vec<Vec<bool>>,
@@ -132,8 +134,13 @@ impl Display for World {
     }
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let mut w = World::from_data(reader.unwrap().lines().map_while(Result::ok));
+pub fn part_01() {
+    let mut w = World::from_data(
+        common::puzzle_input("2015-18")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    );
 
     for _ in 0..100 {
         w.step();
@@ -142,8 +149,13 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("{}", w.count());
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let mut w = World::from_data(reader.unwrap().lines().map_while(Result::ok));
+pub fn part_02() {
+    let mut w = World::from_data(
+        common::puzzle_input("2015-18")
+            .unwrap()
+            .lines()
+            .map_while(Result::ok),
+    );
 
     w.enable_corners();
 

@@ -1,6 +1,8 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
 
 use nom::{branch, bytes, character, sequence, IResult};
+
+use crate::common;
 
 /// Tries to exactly match an ASCII input of "mul(`i32`,`i32`)" and extract the two `i32` values.
 /// Returns `(remaining_input, (i32, i32))` on success.
@@ -245,10 +247,9 @@ where
 /// 1. Use a custom `BufRead` consumer and `Nom` to extract all valid "mul(`i32`, `i32`)"
 ///    instructions as pairs of numbers
 /// 2. Sum the multiples of the extracted numbers
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let mut reader = reader.expect("2024-03.txt should exsist in the data directory");
-
-    let mul_sum = reader
+pub fn part_01() {
+    let mul_sum = common::puzzle_input("2024-03")
+        .unwrap()
         .iter_mul_ops()
         .filter_map(Result::ok)
         .map(|(l, r)| l * r)
@@ -264,10 +265,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
 ///     2. Skipping irrelevant characters until a valid `Op` is found (if any)
 ///     3. Honor the "do"/"don't" operations while moving forward to filter out "mul" instructions
 /// 2. Sum the multiples of the extracted numbers
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let mut reader = reader.expect("2024-03.txt should exsist in the data directory");
-
-    let mul_sum = reader
+pub fn part_02() {
+    let mul_sum = common::puzzle_input("2024-03")
+        .unwrap()
         .iter_filtered_mul_ops()
         .filter_map(Result::ok)
         .map(|(l, r)| l * r)

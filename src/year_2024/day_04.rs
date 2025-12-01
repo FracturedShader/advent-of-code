@@ -1,8 +1,6 @@
-use std::io::{self, BufRead};
-
 use glam::{IVec2, UVec2};
 
-use crate::common::Grid2;
+use crate::common::{self, Grid2};
 
 /// Starting from `(x + dx, y + dy)`, is the entire `pattern` in the `grid` when moving by
 /// `(dx, dy)` per `u8`?
@@ -122,10 +120,8 @@ fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
 ///     - Since we are considering both the forward and backward options we can limit the search
 ///       for the rest to only look forward in memory (forward along same row or in following rows)
 /// 4. Sum up the number of matches found for each cell in the table
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let grid =
-        Grid2::try_from_file(reader.expect("2024-04.txt should exist in the data directory"))
-            .unwrap();
+pub fn part_01() {
+    let grid = Grid2::try_from_reader(common::puzzle_input("2024-04").unwrap()).unwrap();
     let match_count = count_xmas_grid(&grid);
 
     println!("XMAS appearances: {match_count}");
@@ -140,10 +136,8 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
 ///     - Every box has an 'A' in the middle
 ///     - Just need to track what the opposites of the top two corners should be and match
 /// 4. Count up the number of cells that are the top-left corner of an "X-MAS" box
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let grid =
-        Grid2::try_from_file(reader.expect("2024-04.txt should exist in the data directory"))
-            .unwrap();
+pub fn part_02() {
+    let grid = Grid2::try_from_reader(common::puzzle_input("2024-04").unwrap()).unwrap();
     let match_count = count_x_mas_grid(&grid);
 
     println!("X-MAS appearances: {match_count}");
@@ -165,7 +159,7 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
-        Grid2::try_from_file(input.as_bytes()).unwrap()
+        Grid2::try_from_reader(input.as_bytes()).unwrap()
     }
 
     #[test]

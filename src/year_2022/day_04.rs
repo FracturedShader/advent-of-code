@@ -1,8 +1,6 @@
-use std::{
-    fmt::Debug,
-    io::{self, BufRead},
-    str::FromStr,
-};
+use std::{fmt::Debug, io::BufRead, str::FromStr};
+
+use crate::common;
 
 /// Simple type to capture the start and end of a 1D range
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -95,9 +93,9 @@ trait IntoRangePairs<S: AsRef<str>>: Iterator<Item = S> {
 
 impl<S: AsRef<str>, T: Sized> IntoRangePairs<S> for T where T: Iterator<Item = S> {}
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let contain_count: u32 = reader
-        .expect("data should be available for this problem")
+pub fn part_01() {
+    let contain_count: u32 = common::puzzle_input("2022-04")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .range_pairs()
@@ -107,9 +105,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Number of assignment pairs where one fully contains the other: {contain_count}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let overlap_count: u32 = reader
-        .expect("data should be available for this problem")
+pub fn part_02() {
+    let overlap_count: u32 = common::puzzle_input("2022-04")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .range_pairs()

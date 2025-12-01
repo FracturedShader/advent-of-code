@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::BufRead;
+
+use crate::common;
 
 type DiskSpan = (std::ops::Range<usize>, Option<usize>);
 
@@ -111,9 +113,9 @@ fn expand_tracked_input_line(line: &str) -> (Vec<DiskSpan>, usize) {
     (collected, idx)
 }
 
-pub fn part_01(reader: io::Result<impl BufRead>) {
-    let input_line = reader
-        .expect("2024-09.txt should be in the data folder")
+pub fn part_01() {
+    let input_line = common::puzzle_input("2024-09")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .next()
@@ -128,9 +130,9 @@ pub fn part_01(reader: io::Result<impl BufRead>) {
     println!("Defragged checksum: {checksum}");
 }
 
-pub fn part_02(reader: io::Result<impl BufRead>) {
-    let input_line = reader
-        .expect("2024-09.txt should be in the data folder")
+pub fn part_02() {
+    let input_line = common::puzzle_input("2024-09")
+        .unwrap()
         .lines()
         .map_while(Result::ok)
         .next()
