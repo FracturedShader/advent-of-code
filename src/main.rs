@@ -3,6 +3,7 @@ mod year_2015;
 mod year_2022;
 mod year_2023;
 mod year_2024;
+mod year_2025;
 
 fn main() {
     let mut args = std::env::args();
@@ -23,6 +24,7 @@ fn main() {
             (2022, year_2022::DAYS_SOLVED),
             (2023, year_2023::DAYS_SOLVED),
             (2024, year_2024::DAYS_SOLVED),
+            (2025, year_2025::DAYS_SOLVED),
         ] {
             print!(" - {year}: The first ");
 
@@ -54,6 +56,7 @@ fn main() {
         2022 => year_2022::run_solution(day, part),
         2023 => year_2023::run_solution(day, part),
         2024 => year_2024::run_solution(day, part),
+        2025 => year_2025::run_solution(day, part),
         _ => eprintln!("No solutions found for the year {year}"),
     }
 }
