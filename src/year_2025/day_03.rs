@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, io::BufRead, str::FromStr, usize};
+use std::{collections::BTreeSet, io::BufRead, str::FromStr};
 
 use crate::common;
 
@@ -27,7 +27,7 @@ impl BatteryBank {
         // Every selection must at least leave room for the selections that remain
         for max_index in (self.0.len() - max_batteries)..self.0.len() {
             // Every selection must start after the most recent selection (or at 0)
-            let min_index = selected.last().map(|(_, i)| *i + 1).unwrap_or(0);
+            let min_index = selected.last().map_or(0, |(_, i)| *i + 1);
 
             // The highest number at the lowest index within the range is always the best choice
             selected.push(

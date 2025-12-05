@@ -102,10 +102,9 @@ pub fn part_01() {
         .unwrap()
         .unwrap();
 
-    let total: u64 = to_range_strings(&first_line)
+    let total: u64 = to_range_strings(first_line)
         .iter()
-        .map(|r| repeated_digits_in_range(r, true))
-        .flatten()
+        .flat_map(|r| repeated_digits_in_range(r, true))
         .sum();
 
     println!("Sum of found doubles: {total}");
@@ -119,10 +118,9 @@ pub fn part_02() {
         .unwrap()
         .unwrap();
 
-    let total: u64 = to_range_strings(&first_line)
+    let total: u64 = to_range_strings(first_line)
         .iter()
-        .map(|r| repeated_digits_in_range(r, false))
-        .flatten()
+        .flat_map(|r| repeated_digits_in_range(r, false))
         .sum();
 
     println!("Sum of found repeated: {total}");
