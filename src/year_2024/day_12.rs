@@ -277,7 +277,7 @@ BBCD
 BBCC
 EEEC";
 
-        Grid2::try_from_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_bytes(input.bytes()).unwrap()
     }
 
     fn enclosed_regions() -> Grid2<u8> {
@@ -287,7 +287,7 @@ OOOOO
 OXOXO
 OOOOO";
 
-        Grid2::try_from_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_bytes(input.bytes()).unwrap()
     }
 
     fn medium_grid() -> Grid2<u8> {
@@ -302,7 +302,7 @@ MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE";
 
-        Grid2::try_from_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_bytes(input.bytes()).unwrap()
     }
 
     fn big_e() -> Grid2<u8> {
@@ -312,7 +312,7 @@ EEEEE
 EXXXX
 EEEEE";
 
-        Grid2::try_from_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_bytes(input.bytes()).unwrap()
     }
 
     fn abba() -> Grid2<u8> {
@@ -323,7 +323,7 @@ ABBAAA
 ABBAAA
 AAAAAA";
 
-        Grid2::try_from_data(input.bytes().collect()).unwrap()
+        Grid2::try_from_bytes(input.bytes()).unwrap()
     }
 
     #[test]

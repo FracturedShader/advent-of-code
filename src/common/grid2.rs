@@ -153,40 +153,62 @@ impl<T> Grid2<T> {
     }
 }
 
-impl Grid2<u8> {
+impl TryFrom<Vec<u8>> for Grid2<u8> {
+    type Error = &'static str;
+
     /// Try to construct an 2D grid from newline-delimited data (CRLF aware). Final newline not
     /// required.
     /// Errors if the data is not rectangular.
-    pub fn try_from_data(data: Vec<u8>) -> Result<Self, &'static str> {
+    fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
         let (width, stride) = {
-            if let Some(newline_pos) = data.iter().position(|b| *b == b'\n') {
-                if data[newline_pos - 1] == b'\r' {
+            if let Some(newline_pos) = value.iter().position(|b| *b == b'\n') {
+                if value[newline_pos - 1] == b'\r' {
                     (newline_pos - 1, newline_pos + 1)
                 } else {
                     (newline_pos, newline_pos + 1)
                 }
             } else {
-                (data.len(), data.len())
+                (value.len(), value.len())
             }
         };
 
-        let height = data.len().div_ceil(stride);
+        let height = value.len().div_ceil(stride);
 
         let max = IVec2::new(
             i32::try_from(width).expect("grid should be less than `i32::MAX` wide"),
             i32::try_from(height).expect("grid should be less than `i32::MAX` tall"),
         );
 
-        if (height * stride) - data.len() <= (stride - width) {
+        if (height * stride) - value.len() <= (stride - width) {
             Ok(Self {
                 min: IVec2::ZERO,
                 max,
                 stride,
-                data,
+                data: value,
             })
         } else {
             Err("Input is not a rectangular grid")
         }
+    }
+}
+
+impl TryFrom<&[u8]> for Grid2<u8> {
+    type Error = &'static str;
+
+    /// Try to construct an 2D grid from newline-delimited data (CRLF aware). Final newline not
+    /// required.
+    /// Errors if the data is not rectangular.
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        Self::try_from(value.to_vec())
+    }
+}
+
+impl Grid2<u8> {
+    pub fn try_from_bytes<I>(iter: I) -> Result<Self, &'static str>
+    where
+        I: Iterator<Item = u8>,
+    {
+        Self::try_from(iter.collect::<Vec<_>>())
     }
 
     pub fn try_from_reader<R>(mut reader: R) -> Result<Self, &'static str>
@@ -197,7 +219,7 @@ impl Grid2<u8> {
 
         let _ = reader.read_to_end(&mut buf);
 
-        Self::try_from_data(buf)
+        Self::try_from(&buf[..])
     }
 }
 

@@ -101,7 +101,7 @@ fn is_x_mas_cell(grid: &Grid2<u8>, p: IVec2) -> bool {
 /// Counts the number of times "X-MAS" boxes can be found within the grid.
 fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
     let mut count = 0;
-    let (width, height) = (grid.width(), grid.height());
+    let (width, height) = (grid.width() - 2, grid.height() - 2);
 
     for y in 0..height {
         for x in 0..width {
