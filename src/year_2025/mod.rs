@@ -3,6 +3,7 @@ mod day_02;
 mod day_03;
 mod day_04;
 mod day_05;
+mod day_06;
 
 pub const DAYS_SOLVED: i32 = 5;
 
@@ -18,6 +19,8 @@ pub fn run_solution(day: i32, part: i32) {
         (4, 2) => day_04::part_02(),
         (5, 1) => day_05::part_01(),
         (5, 2) => day_05::part_02(),
+        (6, 1) => day_06::part_01(),
+        (6, 2) => day_06::part_02(),
         _ => {
             eprintln!("Solution not implemented for {day:02}-{part:02}");
         }
