@@ -1,4 +1,4 @@
-use glam::{IVec2, UVec2};
+use glam::IVec2;
 
 use crate::common::{self, Grid2};
 
@@ -47,7 +47,7 @@ fn count_xmas_cell(grid: &Grid2<u8>, p: IVec2) -> u32 {
 
     if room_below {
         if room_before {
-            count += u32::from(rest_in_grid(rest, grid, p, IVec2::new(-1, 1)));
+            count += u32::from(rest_in_grid(rest, grid, p, (-1, 1).into()));
         }
 
         count += u32::from(rest_in_grid(rest, grid, p, IVec2::Y));
@@ -68,7 +68,7 @@ fn count_xmas_grid(grid: &Grid2<u8>) -> u32 {
 
     for y in 0..height {
         for x in 0..width {
-            count += count_xmas_cell(grid, UVec2::new(y, x).try_into().unwrap());
+            count += count_xmas_cell(grid, (y, x).into());
         }
     }
 
@@ -105,7 +105,7 @@ fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
 
     for y in 0..height {
         for x in 0..width {
-            count += u32::from(is_x_mas_cell(grid, UVec2::new(x, y).try_into().unwrap()));
+            count += u32::from(is_x_mas_cell(grid, (x, y).into()));
         }
     }
 

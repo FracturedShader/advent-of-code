@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use glam::{IVec2, UVec2};
+use glam::IVec2;
 
 /// Treats a `Vec<u8>` as a 2D grid, so long as the data can be treated as a filled rectangle.
 /// Increasing `x` and `y` both look further forward in memory, but what that means depends on
@@ -270,20 +270,19 @@ impl<T> Grid2<T> {
     }
 
     pub fn get_row(&self, y: i32) -> &[T] {
-        let UVec2 { x: width, .. } = self.size();
         let idx = usize::try_from(y - self.min.y).unwrap() * self.stride;
 
-        &self.data[idx..(idx + width as usize)]
+        &self.data[idx..(idx + usize::try_from(self.width()).unwrap())]
     }
 
     pub fn get_row_mut(&mut self, y: i32) -> &mut [T] {
-        let UVec2 { x: width, .. } = self.size();
+        let width = usize::try_from(self.width()).unwrap();
         let idx = usize::try_from(y - self.min.y).unwrap() * self.stride;
 
-        &mut self.data[idx..(idx + width as usize)]
+        &mut self.data[idx..(idx + width)]
     }
 
-    pub fn height(&self) -> u32 {
+    pub fn height(&self) -> i32 {
         self.size().y
     }
 
@@ -303,8 +302,8 @@ impl<T> Grid2<T> {
         *self.get_mut(p) = v;
     }
 
-    pub fn size(&self) -> UVec2 {
-        (self.max - self.min).try_into().unwrap()
+    pub fn size(&self) -> IVec2 {
+        self.max - self.min
     }
 
     pub fn valid_neighbors4(&self, p: IVec2) -> ValidNeighbors<'_, 4, T> {
@@ -339,8 +338,34 @@ impl<T> Grid2<T> {
         }
     }
 
-    pub fn width(&self) -> u32 {
+    pub fn width(&self) -> i32 {
         self.size().x
+    }
+}
+
+impl<T> Default for Grid2<T> {
+    fn default() -> Self {
+        Self {
+            min: IVec2::ZERO,
+            max: IVec2::ZERO,
+            stride: 0,
+            data: Vec::default(),
+        }
+    }
+}
+
+impl<T> Grid2<T>
+where
+    T: Default,
+{
+    pub fn default_filled(
+        width: usize,
+        height: usize,
+    ) -> Result<Self, <u32 as TryFrom<usize>>::Error> {
+        let width32 = u32::try_from(width)?;
+        let data = (0..(width * height)).map(|_| Default::default()).collect();
+
+        Ok(Self::from_vec(data, width32).unwrap())
     }
 }
 

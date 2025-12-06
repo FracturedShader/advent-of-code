@@ -101,7 +101,7 @@ where
             size.x = size.x.max(l.chars().count().try_into().unwrap());
 
             for (x, c) in l.chars().enumerate().filter(|&(_, c)| c != '.') {
-                let pos = IVec2::new(x.try_into().unwrap(), y.try_into().unwrap());
+                let pos = (x.try_into().unwrap(), y.try_into().unwrap()).into();
 
                 groupings.entry(c).or_default().push(pos);
             }
@@ -149,7 +149,7 @@ mod test {
 
         let map: AntennaMap = BufReader::new(input.as_bytes()).into();
 
-        assert_eq!(map.size, IVec2::new(12, 12));
+        assert_eq!(map.size, (12, 12).into());
 
         map
     }

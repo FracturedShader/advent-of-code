@@ -296,7 +296,7 @@ fn would_loop_if_blocked(vis_map: &Grid2<MapCell>, guard: &Guard) -> bool {
 fn num_obstruction_loop_options(lab_map: &Grid2<u8>, mut guard: Guard) -> usize {
     let mut vis_map = Grid2::from_vec(
         lab_map.iter().copied().map(MapCell::from).collect(),
-        lab_map.width(),
+        lab_map.width().try_into().unwrap()
     )
     .unwrap();
 

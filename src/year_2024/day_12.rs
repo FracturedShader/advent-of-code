@@ -204,8 +204,11 @@ where
     R: From<Vec<Plot>>,
 {
     let (width, height) = (garden.width(), garden.height());
-    let mut visited =
-        Grid2::from_vec(vec![false; (width * height).try_into().unwrap()], width).unwrap();
+    let mut visited = Grid2::from_vec(
+        vec![false; (width * height).try_into().unwrap()],
+        width.try_into().unwrap(),
+    )
+    .unwrap();
 
     garden
         .enumerate()
