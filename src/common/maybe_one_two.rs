@@ -1,28 +1,11 @@
 /// Intended to be exactly like [[`Option`]], but with up to two values of the same type.
+/// Implementation will match [[`Option`]] more closely as different puzzles need more.
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
 pub enum MaybeOneTwo<T> {
     #[default]
     None,
     One(T),
     Two(T, T),
-}
-
-impl<T> MaybeOneTwo<T> {
-    pub const fn as_mut(&mut self) -> MaybeOneTwo<&mut T> {
-        match self {
-            Self::None => MaybeOneTwo::None,
-            Self::One(ref mut v) => MaybeOneTwo::One(v),
-            Self::Two(ref mut v1, ref mut v2) => MaybeOneTwo::Two(v1, v2),
-        }
-    }
-
-    pub const fn as_ref(&self) -> MaybeOneTwo<&T> {
-        match self {
-            Self::None => MaybeOneTwo::None,
-            Self::One(ref v) => MaybeOneTwo::One(v),
-            Self::Two(ref v1, ref v2) => MaybeOneTwo::Two(v1, v2),
-        }
-    }
 }
 
 impl<T> Iterator for MaybeOneTwo<T> {
@@ -67,7 +50,7 @@ impl<T> Iterator for MaybeOneTwo<T> {
         let prev = std::mem::replace(self, Self::None);
 
         match (prev, n) {
-            (Self::One(v), 0) | (Self::Two(v, _), 0) | (Self::Two(_, v), 1) => Some(v),
+            (Self::One(v) | Self::Two(v, _), 0) | (Self::Two(_, v), 1) => Some(v),
             _ => None,
         }
     }
