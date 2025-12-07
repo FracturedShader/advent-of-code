@@ -1,8 +1,11 @@
-use std::io::Read;
+use std::{
+    fmt::{Display, Write},
+    io::Read,
+};
 
 use glam::IVec2;
 
-/// Treats a `Vec<u8>` as a 2D grid, so long as the data can be treated as a filled rectangle.
+/// Treats a `Vec<T>` as a 2D grid, so long as the data can be treated as a filled rectangle.
 /// Increasing `x` and `y` both look further forward in memory, but what that means depends on
 /// context that this class does not assume.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -11,6 +14,23 @@ pub struct Grid2<T> {
     max: IVec2,
     stride: usize,
     data: Vec<T>,
+}
+
+impl<T> Display for Grid2<T>
+where
+    T: Display,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for y in self.min.y..self.max.y {
+            for x in self.min.x..self.max.x {
+                self.get((x, y).into()).fmt(f)?;
+            }
+
+            f.write_char('\n')?;
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone)]
