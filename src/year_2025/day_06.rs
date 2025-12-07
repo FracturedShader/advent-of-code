@@ -85,7 +85,7 @@ impl ProblemGrid {
         }
     }
 
-    /// Try to take the lines of input and turn them into a [[ProblemGrid]]. Lines split by
+    /// Try to take the lines of input and turn them into a [[`ProblemGrid`]]. Lines split by
     /// whitespace should:
     /// - All have the same number of entries
     /// - Have only number entries followed by exactly one row of only operator entries
