@@ -1,4 +1,4 @@
-use glam::IVec2;
+use nalgebra::Vector2;
 
 use crate::common::{self, Grid2};
 
@@ -13,13 +13,13 @@ enum Facing {
 
 impl Facing {
     /// Takes one step in the current `Facing` direction from `p`.
-    /// Returns `Some(IVec2)` when not over/underflowing `u32`.
-    fn step(self, p: IVec2) -> Option<IVec2> {
+    /// Returns `Some(Vector2<i32>)` when not over/underflowing `u32`.
+    fn step(self, p: Vector2<i32>) -> Option<Vector2<i32>> {
         match self {
-            Facing::Up => p.y.checked_sub(1).map(|y| (p.x, y).into()),
-            Facing::Right => p.x.checked_add(1).map(|x| (x, p.y).into()),
-            Facing::Down => p.y.checked_add(1).map(|y| (p.x, y).into()),
-            Facing::Left => p.x.checked_sub(1).map(|x| (x, p.y).into()),
+            Facing::Up => p.y.checked_sub(1).map(|y| Vector2::new(p.x, y)),
+            Facing::Right => p.x.checked_add(1).map(|x| Vector2::new(x, p.y)),
+            Facing::Down => p.y.checked_add(1).map(|y| Vector2::new(p.x, y)),
+            Facing::Left => p.x.checked_sub(1).map(|x| Vector2::new(x, p.y)),
         }
     }
 
@@ -95,7 +95,7 @@ impl MapCell {
 /// direction.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct Guard {
-    position: IVec2,
+    position: Vector2<i32>,
     facing: Facing,
 }
 
@@ -296,7 +296,7 @@ fn would_loop_if_blocked(vis_map: &Grid2<MapCell>, guard: &Guard) -> bool {
 fn num_obstruction_loop_options(lab_map: &Grid2<u8>, mut guard: Guard) -> usize {
     let mut vis_map = Grid2::from_vec(
         lab_map.iter().copied().map(MapCell::from).collect(),
-        lab_map.width().try_into().unwrap()
+        lab_map.width().try_into().unwrap(),
     )
     .unwrap();
 

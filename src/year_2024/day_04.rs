@@ -1,10 +1,10 @@
-use glam::IVec2;
+use nalgebra::Vector2;
 
 use crate::common::{self, Grid2};
 
 /// Starting from `(x + dx, y + dy)`, is the entire `pattern` in the `grid` when moving by
 /// `(dx, dy)` per `u8`?
-fn rest_in_grid(pattern: &[u8], grid: &Grid2<u8>, p: IVec2, dp: IVec2) -> bool {
+fn rest_in_grid(pattern: &[u8], grid: &Grid2<u8>, p: Vector2<i32>, dp: Vector2<i32>) -> bool {
     let mut p = p;
 
     for b in pattern {
@@ -20,7 +20,7 @@ fn rest_in_grid(pattern: &[u8], grid: &Grid2<u8>, p: IVec2, dp: IVec2) -> bool {
 
 /// Counts the number times "XMAS" can be found starting or ending at this cell when looking only
 /// forward in memory (right and/or down in the grid). To be used when scanning the entire grid.
-fn count_xmas_cell(grid: &Grid2<u8>, p: IVec2) -> u32 {
+fn count_xmas_cell(grid: &Grid2<u8>, p: Vector2<i32>) -> u32 {
     let rest = match *grid.get(p) {
         b'S' => b"AMX",
         b'X' => b"MAS",
@@ -42,18 +42,18 @@ fn count_xmas_cell(grid: &Grid2<u8>, p: IVec2) -> u32 {
     let mut count = 0;
 
     if room_after {
-        count += u32::from(rest_in_grid(rest, grid, p, IVec2::X));
+        count += u32::from(rest_in_grid(rest, grid, p, Vector2::x()));
     }
 
     if room_below {
         if room_before {
-            count += u32::from(rest_in_grid(rest, grid, p, (-1, 1).into()));
+            count += u32::from(rest_in_grid(rest, grid, p, Vector2::new(-1, 1)));
         }
 
-        count += u32::from(rest_in_grid(rest, grid, p, IVec2::Y));
+        count += u32::from(rest_in_grid(rest, grid, p, Vector2::y()));
 
         if room_after {
-            count += u32::from(rest_in_grid(rest, grid, p, IVec2::ONE));
+            count += u32::from(rest_in_grid(rest, grid, p, Vector2::new(1, 1)));
         }
     }
 
@@ -68,7 +68,7 @@ fn count_xmas_grid(grid: &Grid2<u8>) -> u32 {
 
     for y in 0..height {
         for x in 0..width {
-            count += count_xmas_cell(grid, (y, x).into());
+            count += count_xmas_cell(grid, Vector2::new(y, x));
         }
     }
 
@@ -84,14 +84,14 @@ fn x_mas_opposite(byte: u8) -> Option<u8> {
     }
 }
 
-/// Is this cell the top-left corner of an "X-MAS" box? Limits scanning to be memory-forward and
-/// this is only intended to be used when scanning the whole `grid` minus padding for the box.
-fn is_x_mas_cell(grid: &Grid2<u8>, p: IVec2) -> bool {
+/// Is this cell the top-left corner of an "X-MAS" box? Limits scanning to be memory-forward. This
+/// is only intended to be used when scanning the whole `grid` minus padding for the box.
+fn is_x_mas_cell(grid: &Grid2<u8>, p: Vector2<i32>) -> bool {
     if let Some(o1) = x_mas_opposite(*grid.get(p)) {
-        if let Some(o2) = x_mas_opposite(*grid.get(p + IVec2::X * 2)) {
-            return *grid.get(p + IVec2::ONE) == b'A'
-                && *grid.get(p + IVec2::Y * 2) == o2
-                && *grid.get(p + IVec2::ONE * 2) == o1;
+        if let Some(o2) = x_mas_opposite(*grid.get(p + Vector2::new(2, 0))) {
+            return *grid.get(p + Vector2::new(1, 1)) == b'A'
+                && *grid.get(p + Vector2::new(0, 2)) == o2
+                && *grid.get(p + Vector2::new(2, 2)) == o1;
         }
     }
 
@@ -105,7 +105,7 @@ fn count_x_mas_grid(grid: &Grid2<u8>) -> u32 {
 
     for y in 0..height {
         for x in 0..width {
-            count += u32::from(is_x_mas_cell(grid, (x, y).into()));
+            count += u32::from(is_x_mas_cell(grid, Vector2::new(x, y)));
         }
     }
 
@@ -166,7 +166,7 @@ MXMXAXMASX";
     fn parse_input() {
         let grid = parsed_test_input();
 
-        assert_eq!(grid.size(), (10, 10).into());
+        assert_eq!(grid.size(), Vector2::new(10, 10));
     }
 
     #[test]
@@ -182,7 +182,7 @@ MXMXAXMASX";
     fn block_search() {
         let grid = parsed_test_input();
 
-        assert!(is_x_mas_cell(&grid, IVec2::X));
+        assert!(is_x_mas_cell(&grid, Vector2::x()));
 
         let match_count = count_x_mas_grid(&grid);
 

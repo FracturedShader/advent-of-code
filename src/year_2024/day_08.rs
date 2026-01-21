@@ -3,19 +3,19 @@ use std::{
     io::BufRead,
 };
 
-use glam::IVec2;
+use nalgebra::Vector2;
 
 use crate::common;
 
 /// A sparse map of antennas from the puzsle input. Antennas are grouped by frequency.
 #[derive(Debug, Clone)]
 struct AntennaMap {
-    size: IVec2,
-    groupings: HashMap<char, Vec<IVec2>>,
+    size: Vector2<i32>,
+    groupings: HashMap<char, Vec<Vector2<i32>>>,
 }
 
 impl AntennaMap {
-    fn in_bounds(&self, p: IVec2) -> bool {
+    fn in_bounds(&self, p: Vector2<i32>) -> bool {
         (0..self.size.x).contains(&p.x) && (0..self.size.y).contains(&p.y)
     }
 
@@ -88,7 +88,7 @@ where
     R: BufRead,
 {
     fn from(value: R) -> Self {
-        let mut size = IVec2::ZERO;
+        let mut size: Vector2<i32> = Vector2::zeros();
         let mut groupings: HashMap<_, Vec<_>> = HashMap::new();
 
         for (y, l) in value
@@ -101,7 +101,7 @@ where
             size.x = size.x.max(l.chars().count().try_into().unwrap());
 
             for (x, c) in l.chars().enumerate().filter(|&(_, c)| c != '.') {
-                let pos = (x.try_into().unwrap(), y.try_into().unwrap()).into();
+                let pos = Vector2::new(x.try_into().unwrap(), y.try_into().unwrap());
 
                 groupings.entry(c).or_default().push(pos);
             }
@@ -149,7 +149,7 @@ mod test {
 
         let map: AntennaMap = BufReader::new(input.as_bytes()).into();
 
-        assert_eq!(map.size, (12, 12).into());
+        assert_eq!(map.size, Vector2::new(12, 12));
 
         map
     }

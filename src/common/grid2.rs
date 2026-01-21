@@ -3,15 +3,15 @@ use std::{
     io::Read,
 };
 
-use glam::IVec2;
+use nalgebra::Vector2;
 
 /// Treats a `Vec<T>` as a 2D grid, so long as the data can be treated as a filled rectangle.
 /// Increasing `x` and `y` both look further forward in memory, but what that means depends on
 /// context that this class does not assume.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid2<T> {
-    min: IVec2,
-    max: IVec2,
+    min: Vector2<i32>,
+    max: Vector2<i32>,
     stride: usize,
     data: Vec<T>,
 }
@@ -23,7 +23,7 @@ where
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for y in self.min.y..self.max.y {
             for x in self.min.x..self.max.x {
-                self.get((x, y).into()).fmt(f)?;
+                self.get(Vector2::new(x, y)).fmt(f)?;
             }
 
             f.write_char('\n')?;
@@ -35,7 +35,7 @@ where
 
 #[derive(Debug, Clone)]
 pub struct Iter2D<'grid, T> {
-    pos: IVec2,
+    pos: Vector2<i32>,
     grid: &'grid Grid2<T>,
 }
 
@@ -46,7 +46,7 @@ impl<'grid, T> Iterator for Iter2D<'grid, T> {
         if self.grid.in_bounds(self.pos) {
             let p = self.pos;
 
-            self.pos += IVec2::X;
+            self.pos += Vector2::x();
 
             if self.pos.x >= self.grid.max.x {
                 self.pos.y += 1;
@@ -62,18 +62,18 @@ impl<'grid, T> Iterator for Iter2D<'grid, T> {
 
 #[derive(Debug, Clone)]
 pub struct Enumerate2D<'grid, T> {
-    pos: IVec2,
+    pos: Vector2<i32>,
     grid: &'grid Grid2<T>,
 }
 
 impl<'grid, T> Iterator for Enumerate2D<'grid, T> {
-    type Item = (IVec2, &'grid T);
+    type Item = (Vector2<i32>, &'grid T);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.grid.in_bounds(self.pos) {
             let p = self.pos;
 
-            self.pos += IVec2::X;
+            self.pos += Vector2::x();
 
             if self.pos.x >= self.grid.max.x {
                 self.pos.y += 1;
@@ -120,17 +120,17 @@ impl From<Direction> for u8 {
     }
 }
 
-impl From<Direction> for IVec2 {
+impl From<Direction> for Vector2<i32> {
     fn from(value: Direction) -> Self {
         match value {
-            Direction::North => IVec2::NEG_Y,
-            Direction::Northeast => IVec2::new(1, -1),
-            Direction::East => IVec2::X,
-            Direction::Southeast => IVec2::ONE,
-            Direction::South => IVec2::Y,
-            Direction::Southwest => IVec2::new(-1, 1),
-            Direction::West => IVec2::NEG_X,
-            Direction::Northwest => IVec2::NEG_ONE,
+            Direction::North => Vector2::new(0, -1),
+            Direction::Northeast => Vector2::new(1, -1),
+            Direction::East => Vector2::x(),
+            Direction::Southeast => Vector2::new(1, 1),
+            Direction::South => Vector2::y(),
+            Direction::Southwest => Vector2::new(-1, 1),
+            Direction::West => Vector2::new(-1, 0),
+            Direction::Northwest => Vector2::new(-1, -1),
         }
     }
 }
@@ -138,13 +138,13 @@ impl From<Direction> for IVec2 {
 #[derive(Debug, Clone)]
 pub struct ValidNeighbors<'grid, const N: usize, T> {
     i: usize,
-    origin: IVec2,
+    origin: Vector2<i32>,
     directions: [Direction; N],
     grid: &'grid Grid2<T>,
 }
 
 impl<'grid, const N: usize, T> Iterator for ValidNeighbors<'grid, N, T> {
-    type Item = (Direction, (IVec2, &'grid T));
+    type Item = (Direction, (Vector2<i32>, &'grid T));
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -153,7 +153,7 @@ impl<'grid, const N: usize, T> Iterator for ValidNeighbors<'grid, N, T> {
             }
 
             let dir = self.directions[self.i];
-            let p = self.origin + IVec2::from(dir);
+            let p = self.origin + Vector2::from(dir);
 
             self.i += 1;
 
@@ -165,8 +165,8 @@ impl<'grid, const N: usize, T> Iterator for ValidNeighbors<'grid, N, T> {
 }
 
 impl<T> Grid2<T> {
-    fn index_to_coord(&self, index: usize) -> IVec2 {
-        IVec2::new(
+    fn index_to_coord(&self, index: usize) -> Vector2<i32> {
+        Vector2::new(
             i32::try_from(index % self.stride).unwrap(),
             i32::try_from(index / self.stride).unwrap(),
         )
@@ -194,14 +194,14 @@ impl TryFrom<Vec<u8>> for Grid2<u8> {
 
         let height = value.len().div_ceil(stride);
 
-        let max = IVec2::new(
+        let max = Vector2::new(
             i32::try_from(width).expect("grid should be less than `i32::MAX` wide"),
             i32::try_from(height).expect("grid should be less than `i32::MAX` tall"),
         );
 
         if (height * stride) - value.len() <= (stride - width) {
             Ok(Self {
-                min: IVec2::ZERO,
+                min: Vector2::zeros(),
                 max,
                 stride,
                 data: value,
@@ -246,16 +246,16 @@ impl Grid2<u8> {
 impl<T> Grid2<T> {
     pub fn enumerate(&self) -> Enumerate2D<'_, T> {
         Enumerate2D {
-            pos: IVec2::ZERO,
+            pos: Vector2::zeros(),
             grid: self,
         }
     }
 
-    pub fn extent_max(&self) -> IVec2 {
+    pub fn extent_max(&self) -> Vector2<i32> {
         self.max
     }
 
-    pub fn extent_min(&self) -> IVec2 {
+    pub fn extent_min(&self) -> Vector2<i32> {
         self.min
     }
 
@@ -269,8 +269,8 @@ impl<T> Grid2<T> {
             i32::try_from(data.len() / width as usize)
                 .ok()
                 .map(|height| Self {
-                    min: IVec2::ZERO,
-                    max: IVec2::new(signed_width, height),
+                    min: Vector2::zeros(),
+                    max: Vector2::new(signed_width, height),
                     stride: width as usize,
                     data,
                 })
@@ -279,11 +279,11 @@ impl<T> Grid2<T> {
         }
     }
 
-    pub fn get(&self, p: IVec2) -> &T {
+    pub fn get(&self, p: Vector2<i32>) -> &T {
         &self.get_row(p.y)[usize::try_from(p.x - self.min.x).unwrap()]
     }
 
-    pub fn get_mut(&mut self, p: IVec2) -> &mut T {
+    pub fn get_mut(&mut self, p: Vector2<i32>) -> &mut T {
         let min_x = self.min.x;
 
         &mut self.get_row_mut(p.y)[usize::try_from(p.x - min_x).unwrap()]
@@ -306,7 +306,7 @@ impl<T> Grid2<T> {
         self.size().y
     }
 
-    pub fn in_bounds(&self, p: IVec2) -> bool {
+    pub fn in_bounds(&self, p: Vector2<i32>) -> bool {
         (self.min.x..self.max.x).contains(&p.x) && (self.min.y..self.max.y).contains(&p.y)
     }
 
@@ -318,15 +318,15 @@ impl<T> Grid2<T> {
         self.into_iter()
     }
 
-    pub fn set(&mut self, p: IVec2, v: T) {
+    pub fn set(&mut self, p: Vector2<i32>, v: T) {
         *self.get_mut(p) = v;
     }
 
-    pub fn size(&self) -> IVec2 {
+    pub fn size(&self) -> Vector2<i32> {
         self.max - self.min
     }
 
-    pub fn valid_neighbors4(&self, p: IVec2) -> ValidNeighbors<'_, 4, T> {
+    pub fn valid_neighbors4(&self, p: Vector2<i32>) -> ValidNeighbors<'_, 4, T> {
         ValidNeighbors {
             i: 0,
             origin: p,
@@ -340,7 +340,7 @@ impl<T> Grid2<T> {
         }
     }
 
-    pub fn valid_neighbors8(&self, p: IVec2) -> ValidNeighbors<'_, 8, T> {
+    pub fn valid_neighbors8(&self, p: Vector2<i32>) -> ValidNeighbors<'_, 8, T> {
         ValidNeighbors {
             i: 0,
             origin: p,
@@ -366,8 +366,8 @@ impl<T> Grid2<T> {
 impl<T> Default for Grid2<T> {
     fn default() -> Self {
         Self {
-            min: IVec2::ZERO,
-            max: IVec2::ZERO,
+            min: Vector2::zeros(),
+            max: Vector2::zeros(),
             stride: 0,
             data: Vec::default(),
         }
@@ -393,7 +393,7 @@ impl<T> Grid2<T>
 where
     T: Eq,
 {
-    pub fn position(&self, value: &T) -> Option<IVec2> {
+    pub fn position(&self, value: &T) -> Option<Vector2<i32>> {
         self.data
             .iter()
             .position(|b| b == value)
@@ -408,7 +408,7 @@ impl<'grid, T> IntoIterator for &'grid Grid2<T> {
 
     fn into_iter(self) -> Self::IntoIter {
         Self::IntoIter {
-            pos: IVec2::ZERO,
+            pos: Vector2::zeros(),
             grid: self,
         }
     }

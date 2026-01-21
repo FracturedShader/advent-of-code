@@ -1,11 +1,11 @@
 use std::collections::{HashSet, VecDeque};
 
-use glam::IVec2;
+use nalgebra::Vector2;
 
 use crate::common::{self, Grid2};
 
 /// Produces `(coord, score)` pairs for every trailhead ('0')
-fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> + use<'_> {
+fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (Vector2<i32>, usize)> + use<'_> {
     grid.enumerate().filter_map(|(p, &v)| {
         if v == b'0' {
             let mut queue = VecDeque::with_capacity(32);
@@ -43,7 +43,7 @@ fn trailhead_scores(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> + 
 }
 
 /// Produces `(coord, rating)` pairs for every trailhead ('0')
-fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (IVec2, usize)> + use<'_> {
+fn trailhead_ratings(grid: &Grid2<u8>) -> impl Iterator<Item = (Vector2<i32>, usize)> + use<'_> {
     grid.enumerate().filter_map(|(p, &v)| {
         if v == b'0' {
             let mut queue = VecDeque::with_capacity(128);

@@ -3,6 +3,8 @@ use std::{
     str::FromStr,
 };
 
+use nalgebra::Vector2;
+
 use crate::common;
 
 /// The problem only needs support for addition and multiplication, so capture those options.
@@ -69,13 +71,13 @@ impl ProblemGrid {
             (0..self.0.width())
                 .map(|x| {
                     // Safety: construction ensures that top n-1 rows are only numbers
-                    let nums = (0..last_row).map(|y| match self.0.get((x, y).into()) {
+                    let nums = (0..last_row).map(|y| match self.0.get(Vector2::new(x, y)) {
                         ProblemEntry::Number(n) => n,
                         ProblemEntry::Op(_) => unreachable!(),
                     });
 
                     // Safety: construction ensures that last row is only operations
-                    match self.0.get((x, last_row).into()) {
+                    match self.0.get(Vector2::new(x, last_row)) {
                         ProblemEntry::Op(MathOp::Add) => nums.sum(),
                         ProblemEntry::Op(MathOp::Mul) => nums.product(),
                         ProblemEntry::Number(_) => unreachable!(),
@@ -156,7 +158,7 @@ fn number_from_ascii_column(
     column: i32,
 ) -> Result<Option<u64>, &'static str> {
     (0..(grid.height() - 1))
-        .filter_map(|y| match grid.get((column, y).into()) {
+        .filter_map(|y| match grid.get(Vector2::new(column, y)) {
             n @ b'0'..=b'9' => Some(Ok(n - b'0')),
             b' ' => None,
             _ => Some(Err("Column has non-numeric non-whitespace entry")),
@@ -190,7 +192,10 @@ fn columnar_results(grid: &common::Grid2<u8>) -> Result<Vec<u64>, &'static str> 
 
     for column in (0..grid.width()).rev() {
         // Find the operation in the bottom row, but should only find one
-        op = match (op, (*grid.get((column, last_row).into())).try_into().ok()) {
+        op = match (
+            op,
+            (*grid.get(Vector2::new(column, last_row))).try_into().ok(),
+        ) {
             (None, p) => Ok(p),
             (Some(_), Some(_)) => Err("Found a group of numbers with more than one operation"),
             _ => Ok(op),

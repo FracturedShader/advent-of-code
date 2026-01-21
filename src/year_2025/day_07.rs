@@ -4,6 +4,8 @@ use std::{
     io::Read,
 };
 
+use nalgebra::Vector2;
+
 use crate::common;
 
 /// Represents all the valid cell types for the problem
@@ -66,10 +68,10 @@ where
 }
 
 /// Tries to find the [[`CellType::Start`]] in the first row of the `manifold`.
-fn start_point(manifold: &common::Grid2<CellType>) -> Option<glam::IVec2> {
+fn start_point(manifold: &common::Grid2<CellType>) -> Option<Vector2<i32>> {
     (0..manifold.width()).find_map(|x| {
-        if manifold.get((x, 0).into()) == &CellType::Start {
-            Some((x, 0).into())
+        if manifold.get(Vector2::new(x, 0)) == &CellType::Start {
+            Some(Vector2::new(x, 0))
         } else {
             None
         }
@@ -91,7 +93,7 @@ fn fire_beam(manifold: &common::Grid2<CellType>) -> (u32, u64) {
     for y in 1..manifold.height() {
         let mut next = HashMap::<i32, u64>::new();
         let stepped = beam_positions.into_iter().flat_map(|(x, c)| {
-            let next_pos = (x, y).into();
+            let next_pos = Vector2::new(x, y);
 
             if manifold.get(next_pos) == &CellType::Splitter {
                 splitters_hit += 1;

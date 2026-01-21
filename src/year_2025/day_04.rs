@@ -1,8 +1,10 @@
+use nalgebra::Vector2;
+
 use crate::common;
 
 /// A roll at point `p` in the `grid` is considered accessible by a forklift if it has less than
 /// four rolls around it (including diagonally).
-fn is_accessible_roll(p: glam::IVec2, grid: &common::Grid2<u8>) -> bool {
+fn is_accessible_roll(p: Vector2<i32>, grid: &common::Grid2<u8>) -> bool {
     grid.valid_neighbors8(p)
         .filter(|(_, (_, n))| **n == b'@')
         .count()

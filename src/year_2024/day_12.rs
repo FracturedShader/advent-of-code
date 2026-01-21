@@ -1,13 +1,13 @@
 use std::collections::VecDeque;
 
-use glam::IVec2;
+use nalgebra::Vector2;
 
 use crate::common::{self, Direction, Grid2};
 
 /// A single garden plot with its coordinate and mask of same-type neighbors
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct Plot {
-    coord: IVec2,
+    coord: Vector2<i32>,
     neighbors_mask: u8,
 }
 

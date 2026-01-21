@@ -1,6 +1,6 @@
 use std::io::{self, BufRead};
 
-use glam::I64Vec2;
+use nalgebra::Vector2;
 use nom::IResult;
 
 use crate::common::{self, a_star_unordered};
@@ -10,7 +10,7 @@ use crate::common::{self, a_star_unordered};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct Button {
     cost: i64,
-    offset: I64Vec2,
+    offset: Vector2<i64>,
 }
 
 /// Encapsulates the puzzle's definition of a machine with both `buttons` and the location of the
@@ -18,7 +18,7 @@ struct Button {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct Machine {
     buttons: [Button; 2],
-    prize: I64Vec2,
+    prize: Vector2<i64>,
 }
 
 impl Machine {
@@ -27,7 +27,7 @@ impl Machine {
     /// Returns the minimum number of tokens required to reach the `prize` using the `buttons`
     fn tokens_to_prize(&self) -> Option<i64> {
         a_star_unordered(
-            I64Vec2::ZERO,
+            Vector2::zeros(),
             |n| {
                 if n.x > self.prize.x || n.y > self.prize.y {
                     None
@@ -54,14 +54,14 @@ impl Machine {
     ///
     /// Returns the minimum number of tokens required to reach the `prize` using the `buttons`
     fn tokens_to_far_prize(&self) -> Option<i64> {
-        let a_denom = self.buttons[1].offset.perp_dot(self.buttons[0].offset);
+        let a_denom = self.buttons[1].offset.perp(&self.buttons[0].offset);
         let b_denom = self.buttons[1].offset.x;
 
         if a_denom == 0 || b_denom == 0 {
             return None;
         }
 
-        let a_num = self.buttons[1].offset.perp_dot(self.prize);
+        let a_num = self.buttons[1].offset.perp(&self.prize);
 
         if a_num % a_denom != 0 {
             return None;
@@ -97,13 +97,13 @@ fn parse_button(input: &str, button: char, cost: i64) -> IResult<&str, Button> {
     let (rest, _) = nom::bytes::complete::tag(", Y+")(rest)?;
     let (rest, y) = nom::character::complete::i64(rest)?;
 
-    let offset = I64Vec2::new(x, y);
+    let offset = Vector2::new(x, y);
 
     Ok((rest, Button { cost, offset }))
 }
 
 /// Parses a line matching the genreal form of "Prize: X=8031, Y=11372" into a prize location.
-fn parse_prize(input: &str, is_offset: bool) -> IResult<&str, I64Vec2> {
+fn parse_prize(input: &str, is_offset: bool) -> IResult<&str, Vector2<i64>> {
     let (rest, _) = nom::bytes::complete::tag("Prize: X=")(input)?;
     let (rest, (x, y)) = nom::sequence::separated_pair(
         nom::character::complete::i64,
@@ -114,10 +114,10 @@ fn parse_prize(input: &str, is_offset: bool) -> IResult<&str, I64Vec2> {
     if is_offset {
         Ok((
             rest,
-            I64Vec2::new(x + 10_000_000_000_000i64, y + 10_000_000_000_000i64),
+            Vector2::new(x + 10_000_000_000_000i64, y + 10_000_000_000_000i64),
         ))
     } else {
-        Ok((rest, I64Vec2::new(x, y)))
+        Ok((rest, Vector2::new(x, y)))
     }
 }
 
@@ -264,53 +264,53 @@ Prize: X=18641, Y=10279";
                     buttons: [
                         Button {
                             cost: 3,
-                            offset: I64Vec2::new(94, 34),
+                            offset: Vector2::new(94, 34),
                         },
                         Button {
                             cost: 1,
-                            offset: I64Vec2::new(22, 67),
+                            offset: Vector2::new(22, 67),
                         }
                     ],
-                    prize: I64Vec2::new(8400, 5400)
+                    prize: Vector2::new(8400, 5400)
                 },
                 Machine {
                     buttons: [
                         Button {
                             cost: 3,
-                            offset: I64Vec2::new(26, 66),
+                            offset: Vector2::new(26, 66),
                         },
                         Button {
                             cost: 1,
-                            offset: I64Vec2::new(67, 21),
+                            offset: Vector2::new(67, 21),
                         }
                     ],
-                    prize: I64Vec2::new(12748, 12176)
+                    prize: Vector2::new(12748, 12176)
                 },
                 Machine {
                     buttons: [
                         Button {
                             cost: 3,
-                            offset: I64Vec2::new(17, 86),
+                            offset: Vector2::new(17, 86),
                         },
                         Button {
                             cost: 1,
-                            offset: I64Vec2::new(84, 37),
+                            offset: Vector2::new(84, 37),
                         }
                     ],
-                    prize: I64Vec2::new(7870, 6450)
+                    prize: Vector2::new(7870, 6450)
                 },
                 Machine {
                     buttons: [
                         Button {
                             cost: 3,
-                            offset: I64Vec2::new(69, 23),
+                            offset: Vector2::new(69, 23),
                         },
                         Button {
                             cost: 1,
-                            offset: I64Vec2::new(27, 71),
+                            offset: Vector2::new(27, 71),
                         }
                     ],
-                    prize: I64Vec2::new(18641, 10279)
+                    prize: Vector2::new(18641, 10279)
                 },
             ]
         );
